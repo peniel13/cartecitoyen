@@ -15,29 +15,32 @@
     {% endif %}
 
     <!-- Onglets -->
-    <div x-data="{ tab: 'provinces' }">
-      <div class="flex border-b mb-6">
-        <button @click="tab = 'provinces'" 
-                :class="tab === 'provinces' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
-                class="px-4 py-2 border-b-2 font-medium">
-          Provinces
-        </button>
-        <button @click="tab = 'federations'" 
-                :class="tab === 'federations' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
-                class="px-4 py-2 border-b-2 font-medium">
-          Fédérations
-        </button>
-        <button @click="tab = 'cellules'" 
-                :class="tab === 'cellules' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
-                class="px-4 py-2 border-b-2 font-medium">
-          Cellules
-        </button>
-        <button @click="tab = 'adhesions'" 
-                :class="tab === 'adhesions' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
-                class="px-4 py-2 border-b-2 font-medium">
-          Qualité membre
-        </button>
-      </div>
+    <!-- Onglets -->
+<div x-data="{ tab: 'provinces' }">
+  <div class="flex border-b mb-6 overflow-x-auto scrollbar-hide">
+    <div class="flex flex-nowrap">
+      <button @click="tab = 'provinces'" 
+              :class="tab === 'provinces' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
+              class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
+        Provinces
+      </button>
+      <button @click="tab = 'federations'" 
+              :class="tab === 'federations' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
+              class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
+        Fédérations
+      </button>
+      <button @click="tab = 'cellules'" 
+              :class="tab === 'cellules' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
+              class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
+        Cellules
+      </button>
+      <button @click="tab = 'adhesions'" 
+              :class="tab === 'adhesions' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
+              class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
+        Qualité membre
+      </button>
+    </div>
+  </div>
 
       <!-- Provinces -->
       <div x-show="tab === 'provinces'" class="space-y-2">

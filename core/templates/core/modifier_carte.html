@@ -49,9 +49,35 @@
     
             <div>
                 <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
-                <input type="date" name="date_naissance" value="{{ form.date_naissance.value|default_if_none:citoyen.date_naissance|date:'Y-m-d' }}" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <input 
+                    id="date_naissance" 
+                    name="date_naissance" 
+                    value="{{ form.date_naissance.value|default_if_none:citoyen.date_naissance|date:'Y-m-d' }}" 
+                    placeholder="jj/mm/aaaa"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
             </div>
+            
+            <script>
+                const naissanceInput = document.getElementById('date_naissance');
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+                if (!isMobile) {
+                    // Desktop : type date pour calendrier
+                    naissanceInput.type = 'date';
+                } else {
+                    // Mobile : type text pour saisir manuellement
+                    naissanceInput.type = 'text';
+                    naissanceInput.addEventListener('input', e => {
+                        let val = e.target.value.replace(/\D/g, '').slice(0,8);
+                        if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
+                        else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
+                        else e.target.value = val;
+                    });
+                }
+            </script>
+            
     
             <div>
                 <label class="block text-sm font-medium text-gray-700">Lieu de naissance</label>
@@ -72,9 +98,34 @@
     
             <div>
                 <label class="block text-sm font-medium text-gray-700">Date d’expiration</label>
-                <input type="date" name="date_expiration" value="{{ form.date_expiration.value|default_if_none:citoyen.date_expiration|date:'Y-m-d' }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <input 
+                    id="date_expiration" 
+                    name="date_expiration" 
+                    value="{{ form.date_expiration.value|default_if_none:citoyen.date_expiration|date:'Y-m-d' }}" 
+                    placeholder="jj/mm/aaaa"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
             </div>
+            
+            <script>
+                const expirationInput = document.getElementById('date_expiration');
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+                if (!isMobile) {
+                    // Desktop : type date pour calendrier
+                    expirationInput.type = 'date';
+                } else {
+                    // Mobile : type text pour saisir manuellement
+                    expirationInput.type = 'text';
+                    expirationInput.addEventListener('input', e => {
+                        let val = e.target.value.replace(/\D/g, '').slice(0,8);
+                        if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
+                        else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
+                        else e.target.value = val;
+                    });
+                }
+            </script>
+            
     
             <div>
                 <label class="block text-sm font-medium text-gray-700">Statut</label>
@@ -342,7 +393,7 @@
     }
   
     setupControls('photo','environment');
-    setupControls('signature','user');
+    setupControls('signature','environment');
   </script>
   
 {% endblock %}

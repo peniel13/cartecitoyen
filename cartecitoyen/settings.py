@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ni0l=p)@cfb)z0ctp67$)678@-4t-*t2z7myo-t@q&4se8i*)-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ 'cartecitoyen.onrender.com','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [ '13.244.101.138','127.0.0.1', 'localhost']
 
 
 # Application definition

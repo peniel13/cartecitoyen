@@ -5,8 +5,9 @@
 <div class="min-h-screen bg-gray-50 py-10">
   <div class="max-w-5xl mx-auto px-4">
     <!-- Stepper -->
-    <ol class="flex items-center w-full space-x-4 mb-8">
-      <li class="flex-1">
+<div class="overflow-x-auto">
+    <ol class="flex items-center w-max space-x-4 mb-8">
+      <li class="flex-none">
         <div class="flex items-center">
           <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-semibold">1</div>
           <div class="ml-3">
@@ -15,7 +16,7 @@
           </div>
         </div>
       </li>
-      <li class="flex-1">
+      <li class="flex-none">
         <div class="flex items-center opacity-60">
           <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">2</div>
           <div class="ml-3">
@@ -24,7 +25,7 @@
           </div>
         </div>
       </li>
-      <li class="flex-1">
+      <li class="flex-none">
         <div class="flex items-center opacity-60">
           <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">3</div>
           <div class="ml-3">
@@ -34,7 +35,8 @@
         </div>
       </li>
     </ol>
-
+  </div>
+  
     <!-- Card -->
     <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 transition-all duration-300">
       <div class="flex items-center justify-between">
@@ -80,9 +82,38 @@
   
           <div>
             <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
-            <input type="date" name="date_naissance" value="{{ form.date_naissance.value|default_if_none:'' }}" required
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input 
+                id="date_naissance" 
+                name="date_naissance" 
+                value="{{ form.date_naissance.value|default_if_none:'' }}" 
+                required
+                placeholder="jj/mm/aaaa"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
           </div>
+          
+          <script>
+            const input = document.getElementById('date_naissance');
+          
+            // Détecter si c'est un mobile
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          
+            if (!isMobile) {
+              // desktop => input type date pour calendrier
+              input.type = 'date';
+            } else {
+              // mobile => input type text pour permettre saisie manuelle
+              input.type = 'text';
+              // optionnel : ajouter un petit masque jj/mm/aaaa
+              input.addEventListener('input', e => {
+                let val = e.target.value.replace(/\D/g, '').slice(0,8); // chiffres seulement
+                if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
+                else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
+                else e.target.value = val;
+              });
+            }
+          </script>
+          
   
           <div>
             <label class="block text-sm font-medium text-gray-700">Lieu de naissance</label>
@@ -103,9 +134,35 @@
   
           <div>
             <label class="block text-sm font-medium text-gray-700">Date d’expiration</label>
-            <input type="date" name="date_expiration" value="{{ form.date_expiration.value|default_if_none:'' }}"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input 
+                id="date_expiration" 
+                name="date_expiration" 
+                value="{{ form.date_expiration.value|default_if_none:'' }}" 
+                placeholder="jj/mm/aaaa"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
           </div>
+          
+          <script>
+            const expirationInput = document.getElementById('date_expiration');
+          
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          
+            if (!isMobile) {
+              // desktop => input type date pour calendrier
+              expirationInput.type = 'date';
+            } else {
+              // mobile => input type text pour permettre saisie manuelle
+              expirationInput.type = 'text';
+              expirationInput.addEventListener('input', e => {
+                let val = e.target.value.replace(/\D/g, '').slice(0,8);
+                if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
+                else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
+                else e.target.value = val;
+              });
+            }
+          </script>
+          
   
           <div>
             <label class="block text-sm font-medium text-gray-700">Statut</label>
@@ -338,7 +395,7 @@
   
     // initialisation
     setupControls('photo', 'environment');      // caméra arrière préférée
-    setupControls('signature', 'user');         // front camera souvent plus adaptée pour signature
+    setupControls('signature', 'environment');         // front camera souvent plus adaptée pour signature
   
     // stop camera on unload (sécurité)
     window.addEventListener('beforeunload', () => {

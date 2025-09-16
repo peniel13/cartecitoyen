@@ -165,7 +165,7 @@ class Citoyen(models.Model):
         
         # Génération du QR code si absent
         if not self.qr_code:
-            qr_img = qrcode.make(f"https://cartecitoyen.onrender.com/verifier_qr/?numero={self.numero_identite}")
+            qr_img = qrcode.make(f"https://monsite.com/verifier_qr/?numero={self.numero_identite}")
             buffer = BytesIO()
             qr_img.save(buffer, format="PNG")
             filename = f"qr_{self.numero_identite}.png"
