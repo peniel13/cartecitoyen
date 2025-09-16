@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
+  <h2 class="text-2xl font-semibold mb-4">Scanner le QR Code</h2>
+
+  <div id="qr-reader" class="w-full max-w-md"></div>
+  
+  <div id="result" class="mt-4 p-4 rounded shadow text-center hidden"></div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+<script>
+function onScanSuccess(decodedText) {
+    // Extraire le numero_identite depuis l'URL scannée
+    let url = new URL(decodedText);
+    let numero = url.searchParams.get("numero");
+    
+    html5QrcodeScanner.clear().then(_ => {
+        fetch(`/user/verifier_qr_ajax/?numero=${numero}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultDiv = document.getElementById("result");
+            resultDiv.classList.remove("hidden");
+            if(data.statut === "valide"){
+                resultDiv.innerHTML = `<p class="text-green-600 font-bold">Carte valide ✅</p>
+                                       <p>${data.prenom} ${data.nom}</p>
+                                       <p>N° ID: ${data.numero_identite}</p>`;
+            } else if(data.statut === "non_valide") {
+                resultDiv.innerHTML = `<p class="text-red-600 font-bold">Carte non valide ❌</p>`;
+            } else {
+                resultDiv.innerHTML = `<p class="text-gray-600">Carte inexistante</p>`;
+            }
+        });
+    });
+}
+
+function onScanError(errorMessage) { console.warn(errorMessage); }
+
+var html5QrcodeScanner = new Html5Qrcode("qr-reader");
+html5QrcodeScanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    onScanSuccess,
+    onScanError
+);
+</script>
+{% endblock %}

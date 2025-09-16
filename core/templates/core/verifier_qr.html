@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full text-center">
+    <h2 class="text-xl font-semibold mb-4">Vérification du QR Code</h2>
+
+    {% if statut == "valide" %}
+      <p class="text-green-600 font-bold mb-2">Carte valide ✅</p>
+      <p>{{ citoyen.prenom }} {{ citoyen.nom }}</p>
+      <p>N° ID: {{ citoyen.numero_identite }}</p>
+      {% if citoyen.photo %}
+        <img src="{{ citoyen.photo.url }}" alt="Photo" class="w-32 h-32 object-cover rounded mt-2 mx-auto">
+      {% endif %}
+    {% elif statut == "non_valide" %}
+      <p class="text-red-600 font-bold">Carte non valide ❌</p>
+      <p>{{ citoyen.prenom }} {{ citoyen.nom }}</p>
+    {% else %}
+      <p class="text-gray-600">Carte inexistante</p>
+    {% endif %}
+
+    <form method="get" class="mt-4">
+      <input type="text" name="qr" placeholder="Entrez le numéro de la carte"
+             class="border rounded p-2 w-full">
+      <button type="submit" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Vérifier</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

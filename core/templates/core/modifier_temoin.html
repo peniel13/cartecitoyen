@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-900">Modifier le témoin</h1>
+        <a href="{% url 'citoyen_detail' temoin.citoyen.id %}" class="text-sm text-gray-600 hover:text-gray-900">← Retour</a>
+      </div>
+
+      {% if messages %}
+      <div class="mt-4 space-y-2">
+        {% for message in messages %}
+          <div class="p-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-yellow-50 text-yellow-800 border border-yellow-200{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+      
+        <!-- Nom -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nom du témoin</label>
+          <input type="text" name="nom" value="{{ form.nom.value|default_if_none:'' }}" required
+                 class="mt-1 w-full rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2">
+          {{ form.nom.errors }}
+        </div>
+      
+        <!-- Relation -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Relation</label>
+          <input type="text" name="relation" value="{{ form.relation.value|default_if_none:'' }}" required
+                 class="mt-1 w-full rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2">
+          {{ form.relation.errors }}
+        </div>
+      
+        <!-- Contact -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact</label>
+          <input type="text" name="contact" value="{{ form.contact.value|default_if_none:'' }}" required
+                 class="mt-1 w-full rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2">
+          {{ form.contact.errors }}
+        </div>
+      
+        <!-- Signature -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fichier (image)</label>
+          
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" id="openSignatureCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+              <button type="button" id="captureSignatureBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+              <button type="button" id="retakeSignatureBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+              <button type="button" id="chooseSignatureBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+            </div>
+          
+            <!-- input file -->
+            <input type="file" id="signatureInput" name="signature" accept="image/*"
+                   class="hidden mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2">
+          
+            <!-- Preview zone -->
+            <div class="mt-3">
+              <video id="signatureVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
+              <canvas id="signatureCanvas" class="hidden"></canvas>
+          
+              {% if temoin.signature %}
+                <img id="signaturePreview" src="{{ temoin.signature.url }}" class="w-40 h-40 object-cover rounded-lg ring-1 ring-gray-200">
+              {% else %}
+                <img id="signaturePreview" class="w-40 h-40 object-cover rounded-lg hidden ring-1 ring-gray-200">
+              {% endif %}
+            </div>
+          
+            {{ form.signature.errors }}
+          </div>
+          
+          
+          
+      
+        <!-- Boutons -->
+        <div class="md:col-span-2 flex items-center justify-between pt-2">
+          <a href="{% url 'citoyen_detail' temoin.citoyen.id %}"
+             class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">
+            Annuler
+          </a>
+          <button type="submit"
+                  class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300">
+            Sauvegarder les modifications
+          </button>
+        </div>
+      </form>
+      
+      {% comment %} <form method="post" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nom du témoin</label>
+          {{ form.nom|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+          {{ form.nom.errors }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Relation</label>
+          {{ form.relation|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+          {{ form.relation.errors }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact</label>
+          {{ form.contact|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+          {{ form.contact.errors }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Signature (image)</label>
+          {{ form.signature|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+          {% if temoin.signature %}
+            <p class="text-xs text-gray-500 mt-1">Signature actuelle : <a href="{{ temoin.signature.url }}" target="_blank" class="text-indigo-600 underline">Voir</a></p>
+          {% endif %}
+          {{ form.signature.errors }}
+        </div>
+
+        <div class="md:col-span-2 flex items-center justify-between pt-2">
+          <a href="{% url 'citoyen_detail' temoin.citoyen.id %}"
+             class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">Annuler</a>
+          <button type="submit"
+                  class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300">
+            Sauvegarder les modifications
+          </button>
+        </div>
+      </form> {% endcomment %}
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const streams = {};
+      const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+    
+      async function startCamera(target, facingMode = 'environment') {
+        const video = document.getElementById(`${target}Video`);
+        const openBtn = document.getElementById(`open${capitalize(target)}CameraBtn`);
+        const chooseBtn = document.getElementById(`choose${capitalize(target)}Btn`);
+        if (!video) { console.warn('startCamera: video element missing for', target); return; }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert("Votre navigateur ne supporte pas la caméra (getUserMedia).");
+          return;
+        }
+        try {
+          console.log('Requesting camera for', target, 'facingMode=', facingMode);
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+          streams[target] = stream;
+          video.srcObject = stream;
+          try { await video.play(); } catch (e) { console.warn('video.play blocked', e); }
+          video.classList.remove('hidden');
+          const capBtn = document.getElementById(`capture${capitalize(target)}Btn`);
+          if (capBtn) capBtn.classList.remove('hidden');
+          if (openBtn) openBtn.classList.add('hidden');
+          if (chooseBtn) chooseBtn.classList.add('hidden');
+        } catch (err) {
+          console.error('getUserMedia error:', err);
+          alert("Impossible d'accéder à la caméra : " + (err.message || err));
+        }
+      }
+    
+      function stopCamera(target) {
+        const s = streams[target];
+        if (s) { s.getTracks().forEach(t => t.stop()); delete streams[target]; }
+        const video = document.getElementById(`${target}Video`);
+        if (video) { try { video.pause(); } catch (e) {} video.srcObject = null; video.classList.add('hidden'); }
+        const capBtn = document.getElementById(`capture${capitalize(target)}Btn`);
+        if (capBtn) capBtn.classList.add('hidden');
+        const openBtn = document.getElementById(`open${capitalize(target)}CameraBtn`);
+        if (openBtn) openBtn.classList.remove('hidden');
+        const chooseBtn = document.getElementById(`choose${capitalize(target)}Btn`);
+        if (chooseBtn) chooseBtn.classList.remove('hidden');
+      }
+    
+      function captureImage(target) {
+        const video = document.getElementById(`${target}Video`);
+        const canvas = document.getElementById(`${target}Canvas`);
+        const preview = document.getElementById(`${target}Preview`);
+        const input = document.getElementById(`${target}Input`);
+        if (!video || !canvas || !preview || !input) { console.warn('captureImage: elements missing for', target); return; }
+    
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+        canvas.toBlob(blob => {
+          if (!blob) { alert("Erreur lors de la capture."); return; }
+          const fileName = `${target}_${Date.now()}.jpg`;
+          const file = new File([blob], fileName, { type: 'image/jpeg' });
+    
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            console.log('Inserted captured file into input.files for', target, fileName);
+          } catch (e) {
+            console.warn('Unable to set input.files, fallback stored in window._capturedFallback', e);
+            window._capturedFallback = window._capturedFallback || {};
+            window._capturedFallback[target] = file;
+          }
+    
+          preview.src = URL.createObjectURL(file);
+          preview.classList.remove('hidden');
+    
+          stopCamera(target);
+          const retakeBtn = document.getElementById(`retake${capitalize(target)}Btn`);
+          if (retakeBtn) retakeBtn.classList.remove('hidden');
+        }, 'image/jpeg', 0.95);
+      }
+    
+      function setupControls(target, facingMode = 'environment') {
+        const openBtn = document.getElementById(`open${capitalize(target)}CameraBtn`);
+        const captureBtn = document.getElementById(`capture${capitalize(target)}Btn`);
+        const retakeBtn = document.getElementById(`retake${capitalize(target)}Btn`);
+        const chooseBtn = document.getElementById(`choose${capitalize(target)}Btn`);
+        const input = document.getElementById(`${target}Input`);
+        const video = document.getElementById(`${target}Video`);
+        const preview = document.getElementById(`${target}Preview`);
+    
+        if (!openBtn && !captureBtn && !retakeBtn && !chooseBtn && !input) {
+          console.warn(`setupControls: aucun élément trouvé pour '${target}'. Vérifie les IDs dans le template.`);
+          return;
+        }
+    
+        if (openBtn) openBtn.addEventListener('click', e => { e.preventDefault(); startCamera(target, facingMode); });
+        if (captureBtn) captureBtn.addEventListener('click', e => { e.preventDefault(); captureImage(target); });
+        if (retakeBtn) retakeBtn.addEventListener('click', e => {
+          e.preventDefault();
+          if (preview) preview.classList.add('hidden');
+          if (retakeBtn) retakeBtn.classList.add('hidden');
+          startCamera(target, facingMode);
+        });
+        if (chooseBtn) chooseBtn.addEventListener('click', e => { e.preventDefault(); if (input) input.click(); });
+    
+        if (input) input.addEventListener('change', e => {
+          const [file] = e.target.files || [];
+          if (file) {
+            if (preview) {
+              if (file.type && file.type.startsWith('image/')) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+              } else {
+                preview.classList.add('hidden'); // non-image selected (pdf/doc) - template can show link
+                console.log('Non-image file selected for', target, file.name);
+              }
+            }
+            stopCamera(target);
+            if (retakeBtn) retakeBtn.classList.add('hidden');
+          }
+        });
+      }
+    
+      // **APPELS** — ajoute ou retire selon les cibles présentes dans ton template
+      setupControls('signature', 'environment'); // obligatoire pour le témoin
+      setupControls('photo', 'environment');     // si tu utilises photo
+      setupControls('fichier', 'environment');   // si tu utilises fichier/document
+    
+      // stop streams on leave / submit
+      window.addEventListener('beforeunload', () => { stopCamera('signature'); stopCamera('photo'); stopCamera('fichier'); });
+      document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(f => {
+        f.addEventListener('submit', () => { stopCamera('signature'); stopCamera('photo'); stopCamera('fichier'); });
+      });
+    
+      console.log('Camera controls initialized (signature, photo, fichier) — vérifie la console pour erreurs.');
+    });
+    </script>
+<!-- Script pour activer caméra + preview -->
+<script>
+    setupControls('signature','environment');
+  </script>
+{% endblock %}

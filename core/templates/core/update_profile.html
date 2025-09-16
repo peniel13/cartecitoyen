@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold text-center text-primary">Mettre à jour de votre profile</h2>
+    
+    <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="rounded-md shadow-sm -space-y-px">
+
+        <!-- First Name -->
+        <div>
+          <input id="id_first_name" name="first_name" type="text" value="{{ form.first_name.value }}" placeholder="Entrer votre nom"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md" required>
+        </div>
+
+        <!-- Last Name -->
+        <div>
+          <input id="id_last_name" name="last_name" type="text" value="{{ form.last_name.value }}" placeholder="Entrer votre post nom"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md" required>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <input id="id_email" name="email" type="email" value="{{ form.email.value }}" placeholder="Entrer votre email"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md" required>
+        </div>
+
+        <!-- Username -->
+        <div>
+          <input id="id_username" name="username" type="text" value="{{ form.username.value }}" placeholder="Entrer votre username"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md" required>
+        </div>
+
+        <!-- Profile Pic -->
+        <div>
+          <input id="id_profile_pic" name="profile_pic" type="file"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <textarea id="id_bio" name="bio" placeholder="Entrer votre bio"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">{{ form.bio.value }}</textarea>
+        </div>
+
+        <!-- Address -->
+        <div>
+          <input id="id_address" name="address" type="text" value="{{ form.address.value }}" placeholder="Entrer votre adresse"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <input id="id_phone" name="phone" type="text" value="{{ form.phone.value }}" placeholder="Entrer votre numéro téléphone"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Role -->
+        <div>
+          <input id="id_role" name="role" type="text" value="{{ form.role.value }}" placeholder="Entrer votre rôle"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Province -->
+        <div>
+          <input id="id_province" name="province" type="text" value="{{ form.province.value }}" placeholder="Entrer votre province"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Ville ou District -->
+        <div>
+          <input id="id_ville_ou_district" name="ville_ou_district" type="text" value="{{ form.ville_ou_district.value }}" placeholder="Entrer votre ville ou district"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+        <!-- Commune ou Contrée -->
+        <div>
+          <input id="id_commune_ou_contree" name="commune_ou_contree" type="text" value="{{ form.commune_ou_contree.value }}" placeholder="Entrer votre commune ou contrée"
+            class="appearance-none block w-full px-3 py-2 border border-gray-300 text-gray-900 sm:text-sm rounded-md">
+        </div>
+
+      </div>
+
+      <div>
+        <button type="submit" class="w-full flex justify-center py-2 px-4 rounded-md text-white bg-primary hover:bg-indigo-700 focus:outline-none">
+          Update Profile
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-5xl mx-auto px-4">
+
+    <!-- Card -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 transition-all duration-300">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-900">Modifier le citoyen</h1>
+        <a href="{% url 'profile' %}" class="text-sm text-gray-600 hover:text-gray-900">← Retour profil</a>
+      </div>
+
+      <!-- Messages Django -->
+      {% if messages %}
+      <div class="mt-4 space-y-2">
+        {% for message in messages %}
+          <div class="p-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-yellow-50 text-yellow-800 border border-yellow-200{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Form -->
+      <form method="POST" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+    
+        <!-- Col 1 : Informations personnelles -->
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Prénom</label>
+                <input type="text" name="prenom" value="{{ form.prenom.value|default_if_none:citoyen.prenom }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Postnom</label>
+                <input type="text" name="postnom" value="{{ form.postnom.value|default_if_none:citoyen.postnom }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nom</label>
+                <input type="text" name="nom" value="{{ form.nom.value|default_if_none:citoyen.nom }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
+                <input type="date" name="date_naissance" value="{{ form.date_naissance.value|default_if_none:citoyen.date_naissance|date:'Y-m-d' }}" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Lieu de naissance</label>
+                <input type="text" name="lieu_naissance" value="{{ form.lieu_naissance.value|default_if_none:citoyen.lieu_naissance }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nationalité</label>
+                <input type="text" name="nationalite" value="{{ form.nationalite.value|default_if_none:citoyen.nationalite }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Sexe</label>
+                {{ form.sexe }}
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Date d’expiration</label>
+                <input type="date" name="date_expiration" value="{{ form.date_expiration.value|default_if_none:citoyen.date_expiration|date:'Y-m-d' }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Statut</label>
+                {{ form.statut }}
+            </div>
+    
+            <!-- Champs supplémentaires -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Province</label>
+                {% render_field form.province class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Fédération</label>
+                {% render_field form.federation class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Cellule</label>
+                {% render_field form.cellule class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+            </div>
+    
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Statut d’adhésion</label>
+                {% render_field form.statut_adhesion class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+            </div>
+        </div>
+    
+       <!-- Col 2 : Images -->
+<div class="space-y-6">
+
+    <!-- PHOTO -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Photo</label>
+  
+      <div class="mt-2 flex items-center gap-2">
+        <button type="button" id="openPhotoCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+        <button type="button" id="capturePhotoBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+        <button type="button" id="retakePhotoBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+        <button type="button" id="choosePhotoBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+      </div>
+  
+      <!-- input file -->
+      <input type="file" id="photoInput" name="photo" accept="image/*" class="hidden">
+  
+      <div class="mt-3">
+        <video id="photoVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
+        <canvas id="photoCanvas" class="hidden"></canvas>
+  
+        {% if citoyen.photo %}
+          <img id="photoPreview" src="{{ citoyen.photo.url }}" class="w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
+        {% else %}
+          <img id="photoPreview" class="w-40 h-40 object-cover rounded-xl hidden ring-1 ring-gray-200">
+        {% endif %}
+      </div>
+    </div>
+  
+    <!-- SIGNATURE -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Signature</label>
+  
+      <div class="mt-2 flex items-center gap-2">
+        <button type="button" id="openSignatureCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+        <button type="button" id="captureSignatureBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+        <button type="button" id="retakeSignatureBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+        <button type="button" id="chooseSignatureBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+      </div>
+  
+      <input type="file" id="signatureInput" name="signature" accept="image/*" class="hidden">
+  
+      <div class="mt-3">
+        <video id="signatureVideo" autoplay playsinline class="hidden w-40 h-24 rounded-lg object-cover border"></video>
+        <canvas id="signatureCanvas" class="hidden"></canvas>
+  
+        {% if citoyen.signature %}
+          <img id="signaturePreview" src="{{ citoyen.signature.url }}" class="h-16 object-contain rounded-md ring-1 ring-gray-200 bg-white">
+        {% else %}
+          <img id="signaturePreview" class="h-16 object-contain rounded-md hidden ring-1 ring-gray-200 bg-white">
+        {% endif %}
+      </div>
+    </div>
+  
+  </div>
+  
+        <!-- Bouton de soumission -->
+        <div class="md:col-span-2">
+            <button type="submit"
+                    class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                Enregistrer les modifications
+            </button>
+        </div>
+    </form>
+      
+      {% comment %} <form method="post" enctype="multipart/form-data" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+
+        <!-- Col 1 -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Prénom</label>
+            {{ form.prenom|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.prenom.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Postnom</label>
+            {{ form.postnom|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.postnom.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nom</label>
+            <input type="text" name="nom" value="{{ citoyen.nom }}" required
+                   class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
+            <input type="date" name="date_naissance" value="{{ citoyen.date_naissance|date:'Y-m-d' }}" required
+                   class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Lieu de naissance</label>
+            <input type="text" name="lieu_naissance" value="{{ citoyen.lieu_naissance }}"
+                   class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nationalité</label>
+            {{ form.nationalite|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.nationalite.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Sexe</label>
+            {{ form.sexe|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.sexe.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date d'expiration</label>
+            {{ form.date_expiration|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.date_expiration.errors }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Statut</label>
+            {{ form.statut|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+            {{ form.statut.errors }}
+          </div>
+        </div>
+
+        <!-- Col 2 -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Photo</label>
+            <input id="photoInput" type="file" name="photo" accept="image/*"
+                   class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+            <div class="mt-3">
+              {% if citoyen.photo %}
+              <img id="photoPreview" src="{{ citoyen.photo.url }}" class="w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
+              {% else %}
+              <img id="photoPreview" class="w-40 h-40 object-cover rounded-xl hidden ring-1 ring-gray-200">
+              {% endif %}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Signature</label>
+            <input id="signatureInput" type="file" name="signature" accept="image/*"
+                   class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+            <div class="mt-3">
+              {% if citoyen.signature %}
+              <img id="signaturePreview" src="{{ citoyen.signature.url }}" class="h-16 object-contain rounded-md ring-1 ring-gray-200 bg-white">
+              {% else %}
+              <img id="signaturePreview" class="h-16 object-contain rounded-md hidden ring-1 ring-gray-200 bg-white">
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 flex items-center justify-between pt-2">
+          <a href="{% url 'profile' %}" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">Annuler</a>
+          <button type="submit"
+                  class="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 transition">
+            Enregistrer modifications
+          </button>
+        </div>
+      </form> {% endcomment %}
+    </div>
+  </div>
+</div>
+
+<script>
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  photoInput?.addEventListener('change', e => {
+    const [file] = e.target.files || [];
+    if(file){ photoPreview.src = URL.createObjectURL(file); photoPreview.classList.remove('hidden'); }
+  });
+
+  const signatureInput = document.getElementById('signatureInput');
+  const signaturePreview = document.getElementById('signaturePreview');
+  signatureInput?.addEventListener('change', e => {
+    const [file] = e.target.files || [];
+    if(file){ signaturePreview.src = URL.createObjectURL(file); signaturePreview.classList.remove('hidden'); }
+  });
+</script>
+<script>
+    const streams = {};
+    function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  
+    async function startCamera(target, facingMode = "environment") {
+      const video = document.getElementById(`${target}Video`);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+        streams[target] = stream;
+        video.srcObject = stream;
+        video.classList.remove("hidden");
+        document.getElementById(`capture${capitalize(target)}Btn`).classList.remove("hidden");
+        document.getElementById(`${target}Preview`).classList.add("hidden");
+      } catch (err) {
+        alert("Impossible d'accéder à la caméra : " + err.message);
+      }
+    }
+  
+    function stopCamera(target) {
+      const s = streams[target];
+      if (s) { s.getTracks().forEach(t => t.stop()); delete streams[target]; }
+      const video = document.getElementById(`${target}Video`);
+      video.pause(); video.srcObject = null; video.classList.add("hidden");
+      document.getElementById(`capture${capitalize(target)}Btn`).classList.add("hidden");
+    }
+  
+    function captureImage(target) {
+      const video = document.getElementById(`${target}Video`);
+      const canvas = document.getElementById(`${target}Canvas`);
+      const preview = document.getElementById(`${target}Preview`);
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob(blob => {
+        const file = new File([blob], `${target}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const dt = new DataTransfer(); dt.items.add(file);
+        document.getElementById(`${target}Input`).files = dt.files;
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove("hidden");
+        stopCamera(target);
+        document.getElementById(`retake${capitalize(target)}Btn`).classList.remove("hidden");
+      }, 'image/jpeg', 0.95);
+    }
+  
+    function setupControls(target, facingMode) {
+      document.getElementById(`open${capitalize(target)}CameraBtn`).addEventListener('click', () => startCamera(target, facingMode));
+      document.getElementById(`capture${capitalize(target)}Btn`).addEventListener('click', () => captureImage(target));
+      document.getElementById(`retake${capitalize(target)}Btn`).addEventListener('click', () => {
+        document.getElementById(`${target}Preview`).classList.add("hidden");
+        document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
+        startCamera(target, facingMode);
+      });
+      document.getElementById(`choose${capitalize(target)}Btn`).addEventListener('click', () => {
+        document.getElementById(`${target}Input`).click();
+      });
+      document.getElementById(`${target}Input`).addEventListener('change', e => {
+        const [file] = e.target.files || [];
+        if (file) {
+          const preview = document.getElementById(`${target}Preview`);
+          preview.src = URL.createObjectURL(file);
+          preview.classList.remove('hidden');
+          document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
+        }
+      });
+    }
+  
+    setupControls('photo','environment');
+    setupControls('signature','user');
+  </script>
+  
+{% endblock %}

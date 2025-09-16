@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-7xl mx-auto px-4">
+    {% if stats_utilisateur %}
+<div class="mt-4 p-4 bg-gray-100 rounded-lg">
+  <h3 class="font-semibold mb-2">Statistiques de l’utilisateur {{ query }}</h3>
+  <ul>
+    {% for action, count in stats_utilisateur.items %}
+      <li>{{ action }} : {{ count }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+    
+    <!-- Titre -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Journal des actions</h1>
+      <form method="get" class="flex">
+        <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Rechercher..."
+               class="px-4 py-2 border border-gray-300 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-r-xl hover:bg-indigo-700 transition">Rechercher</button>
+      </form>
+    </div>
+
+    <!-- Tableau -->
+    <div class="overflow-x-auto bg-white shadow-lg rounded-2xl">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Date</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Action</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Citoyen</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold uppercase">Utilisateur</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for journal in page_obj %}
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-6 py-4 text-sm text-gray-700">{{ journal.date_action|date:"d/m/Y H:i" }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ journal.action }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ journal.citoyen.nom }} {{ journal.citoyen.prenom }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700">{{ journal.utilisateur.email }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucune action trouvée.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-6 flex justify-center">
+      <nav class="inline-flex -space-x-px rounded-md shadow-sm">
+        {% if page_obj.has_previous %}
+          <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}"
+             class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">Précédent</a>
+        {% else %}
+          <span class="px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed">Précédent</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="px-3 py-2 border-t border-b border-gray-300 bg-indigo-600 text-white">{{ num }}</span>
+          {% else %}
+            <a href="?q={{ query }}&page={{ num }}" class="px-3 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <a href="?q={{ query }}&page={{ page_obj.next_page_number }}"
+             class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">Suivant</a>
+        {% else %}
+          <span class="px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed">Suivant</span>
+        {% endif %}
+      </nav>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

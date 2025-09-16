@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<header class="relative bg-gradient-to-r from-gray-900 to-gray-700 h-screen flex items-center" style="background-image: url('{% static "img/tshitshi.png" %}'); background-size: cover;">
+    <!-- Couche d'opacité noire -->
+    <div class="absolute inset-0 opacity-50 bg-black"></div>
+    
+    <!-- Contenu centré -->
+    <div class="relative z-10 flex items-center justify-center w-full h-full px-6 md:px-12">
+        <div class="text-center max-w-2xl mx-auto text-white">
+            
+  <h1 class="text-4xl md:text-5xl font-bold uppercase mb-4">UDPS/TSHISEKEDI</h1>
+  <h3 class="text-2xl md:text-3xl font-light mb-6">LE PEUPLE D'ABORD !</h3>
+  <p class="text-base md:text-lg mb-8">Trouve ta carte membre UDPS/TSHISEKEDI en ligne, cela constitue une preuve irrefutable de ton apparetenance au grand parti politique qui est UDPS/TSHISEKEDI </p>
+  
+        </div>
+    </div>
+  </header>
+  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-start px-4 pt-6">
+
+    <!-- Logo / Titre -->
+    <h1 class="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center">
+      Rechercher une carte membre
+    </h1>
+  
+    <!-- Barre de recherche style Google -->
+    <form method="get" id="form-recherche" class="w-full max-w-2xl">
+      <div class="flex items-center bg-white rounded-full shadow-md px-4 py-2 border">
+        <input type="text" name="q" placeholder="Entrez prénom, nom, postnom ou 3 derniers chiffres"
+               value="{{ query|default:'' }}"
+               class="flex-grow px-3 py-2 text-gray-700 focus:outline-none rounded-full">
+        <button type="submit"
+                class="px-5 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700">
+          Rechercher
+        </button>
+      </div>
+    </form>
+  
+    <!-- Résultats -->
+    {% if query %}
+      <div id="resultats-cartes" class="w-full max-w-4xl mt-6">
+        {% if citoyens and citoyens %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for citoyen in citoyens %}
+              <div class="bg-white p-4 rounded-2xl shadow hover:shadow-md transition">
+                <div class="flex items-center space-x-4">
+                  {% if citoyen.photo %}
+                    <img src="{{ citoyen.photo.url }}" alt="{{ citoyen.prenom }}" class="w-16 h-16 object-cover rounded-full">
+                  {% else %}
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500"> ? </div>
+                  {% endif %}
+                  <div>
+                    <p class="font-semibold">{{ citoyen.prenom }} {{ citoyen.nom }} {{ citoyen.postnom }}</p>
+                    <p class="text-sm text-gray-500">N° ID: {{ citoyen.numero_identite }}</p>
+                    <p class="text-sm text-gray-500">
+                      Statut:
+                      {% if citoyen.statut == 'valid' %}
+                        <span class="text-green-600">✅ Valide</span>
+                      {% elif citoyen.statut == 'pending' %}
+                        <span class="text-yellow-600">⏳ En attente</span>
+                      {% else %}
+                        <span class="text-red-600">❌ Invalide</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-3 flex flex-wrap justify-end gap-2">
+                  <a href="{% url 'telecharger_carte' citoyen.id %}"
+                     class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+                    Télécharger
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+  
+          <!-- Pagination -->
+          {% if citoyens.has_other_pages %}
+            <div class="mt-8 mb-10 flex justify-center">
+              <ul class="flex space-x-2">
+                {% if citoyens.has_previous %}
+                  <li>
+                    <a href="?q={{ query }}&page={{ citoyens.previous_page_number }}#resultats-cartes"
+                       class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&lt;</a>
+                  </li>
+                {% endif %}
+                <li>
+                  <span class="px-3 py-1 bg-indigo-600 text-white rounded-lg">{{ citoyens.number }}</span>
+                </li>
+                {% if citoyens.has_next %}
+                  <li>
+                    <a href="?q={{ query }}&page={{ citoyens.next_page_number }}#resultats-cartes"
+                       class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&gt;</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="text-gray-500 text-center">Aucune carte trouveé.</p>
+        {% endif %}
+      </div>
+    {% else %}
+      <!-- Image affichée avant recherche -->
+      <div class="mt-10 flex justify-center">
+        <img src="{% static 'img/cartemain.png' %}" alt="Carte UDPS" class="max-w-md w-full rounded-xl shadow-md">
+      </div>
+    {% endif %}
+  </div>
+    
+
+  <section class="bg-white section-padding relative" style="background-image: url('{% static "img/logo_udps.jpg" %}'); background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-black opacity-30"></div> <!-- Overlay sombre optionnel -->
+    
+    <!-- Ajout de padding en haut et en bas du contenu -->
+    <div class="container mx-auto px-4 py-16 relative z-10">
+        <div class="flex flex-col md:flex-row mb-32">
+            
+            <!-- Section des informations de contact -->
+            <div class="md:w-1/2 mb-8 animate-box" data-animate-effect="fadeInUp">
+                <h5 class="text-xl font-semibold text-white">Information</h5>
+                <p class="mb-8 text-gray-200">Voici nos contacts qui sont 7/7 opérationnels pour répondre à vos besoins.</p>
+  
+                <div class="flex items-center mb-4">
+                    <div class="mr-4">
+                        <img src="{% static 'img/icons/c1.svg' %}" alt="" class="w-8 h-8">
+                    </div>
+                    <div>
+                        <div class="font-semibold text-white">Appelez-nous</div>
+                        <div class="text-gray-200"><a href="tel:0972489318" class="text-white hover:underline">+ 243972489318</a></div>
+                    </div>
+                </div>
+  
+                <div class="flex items-center">
+                    <div class="mr-4">
+                        <img src="{% static 'img/icons/c2.svg' %}" alt="" class="w-8 h-8">
+                    </div>
+                    <div>
+                        <div class="font-semibold text-white">Envoyer un email</div>
+                        <div class="text-gray-200"><a href="mailto:winaservice1@gmail.com" class="text-white hover:underline">winaservice1@gmail.com</a></div>
+                    </div>
+                </div>
+            </div>
+  
+            <!-- Section du formulaire de contact -->
+            <div class="md:w-1/2 md:ml-8 animate-box" data-animate-effect="fadeInUp">
+                <div class="form-box p-6 border rounded-lg shadow bg-white">
+                    <h5 class="text-xl font-semibold mb-4">Contacter nous</h5>
+                    <form action="https://api.web3forms.com/submit" method="POST">
+                        <input type="hidden" name="access_key" value="f0a24e68-feaf-4b96-ba0f-07771649ad93">
+                        
+                        <div class="mb-4">
+                            <input name="name" type="text" required placeholder="Votre Nom *" class="w-full p-2 border rounded" />
+                        </div>
+                        <div class="flex mb-4">
+                            <div class="w-1/2 pr-2">
+                                <input name="email" type="email" required placeholder="Votre Email *" class="w-full p-2 border rounded" />
+                            </div>
+                            <div class="w-1/2 pl-2">
+                                <input name="phone" type="text" required placeholder="Votre Numéro *" class="w-full p-2 border rounded" />
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <input name="subject" type="text" required placeholder="Entrer le Service recherché" class="w-full p-2 border rounded" />
+                        </div>
+                        <div class="mb-4">
+                            <textarea name="msg" required placeholder="Déterminer votre commande *" class="w-full p-2 border rounded"></textarea>
+                        </div>
+                        <div>
+                            <input name="submit" type="submit" value="Envoyer maintenant" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 cursor-pointer" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  </section>
+  <!-- Scroll automatique après recherche -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const query = "{{ query|default:'' }}";
+      if(query) {
+        const results = document.getElementById("resultats-cartes");
+        if(results) {
+          results.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    });
+  </script>
+  
+  
+{% endblock %}

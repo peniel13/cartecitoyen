@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-900">Modifier le document</h1>
+        <a href="{% url 'citoyen_detail' document.citoyen.id %}" class="text-sm text-gray-600 hover:text-gray-900">← Retour</a>
+      </div>
+
+      {% if messages %}
+      <div class="mt-4 space-y-2">
+        {% for message in messages %}
+          <div class="p-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-yellow-50 text-yellow-800 border border-yellow-200{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="mt-6 space-y-5">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Type de document</label>
+          {{ form.type_document|add_class:"mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" }}
+          {{ form.type_document.errors }}
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fichier</label>
+          
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" id="openFichierCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+              <button type="button" id="captureFichierBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+              <button type="button" id="retakeFichierBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+              <button type="button" id="chooseFichierBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+            </div>
+          
+            <!-- input file -->
+            <input type="file" id="fichierInput" name="fichier" accept="image/*,.pdf,.doc,.docx"
+                   class="hidden mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+          
+            <!-- Preview zone -->
+            <div class="mt-3">
+              <video id="fichierVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
+              <canvas id="fichierCanvas" class="hidden"></canvas>
+          
+              {% if document.fichier %}
+                {% if document.fichier.url|lower|slice:"-4:" == ".pdf" %}
+                  <p class="text-xs text-gray-500">Document actuel : 
+                    <a href="{{ document.fichier.url }}" target="_blank" class="text-indigo-600 underline">Voir le PDF</a>
+                  </p>
+                {% else %}
+                  <img id="fichierPreview" src="{{ document.fichier.url }}" class="w-40 h-40 object-cover rounded-lg ring-1 ring-gray-200">
+                {% endif %}
+              {% else %}
+                <img id="fichierPreview" class="w-40 h-40 object-cover rounded-lg hidden ring-1 ring-gray-200">
+              {% endif %}
+            </div>
+          
+            {{ form.fichier.errors }}
+          </div>
+          
+
+        <div class="flex items-center justify-between">
+          <a href="{% url 'citoyen_detail' document.citoyen.id %}" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">Annuler</a>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300">
+            Sauvegarder les modifications
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+    function setupControls(prefix, facingMode = "environment") {
+      const openBtn = document.getElementById(`open${capitalize(prefix)}CameraBtn`);
+      const captureBtn = document.getElementById(`capture${capitalize(prefix)}Btn`);
+      const retakeBtn = document.getElementById(`retake${capitalize(prefix)}Btn`);
+      const chooseBtn = document.getElementById(`choose${capitalize(prefix)}Btn`);
+      const input = document.getElementById(`${prefix}Input`);
+      const video = document.getElementById(`${prefix}Video`);
+      const canvas = document.getElementById(`${prefix}Canvas`);
+      const preview = document.getElementById(`${prefix}Preview`);
+      let stream;
+    
+      // Helper
+      function capitalize(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+    
+      // Ouvrir la caméra
+      openBtn.addEventListener("click", async () => {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode }
+          });
+          video.srcObject = stream;
+          video.classList.remove("hidden");
+          captureBtn.classList.remove("hidden");
+          openBtn.classList.add("hidden");
+          chooseBtn.classList.add("hidden");
+        } catch (err) {
+          alert("Impossible d’accéder à la caméra: " + err.message);
+        }
+      });
+    
+      // Capturer l’image
+      captureBtn.addEventListener("click", () => {
+        const context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/png");
+    
+        // Afficher l’aperçu
+        preview.src = dataUrl;
+        preview.classList.remove("hidden");
+    
+        // Arrêter la caméra
+        stream.getTracks().forEach(track => track.stop());
+        video.classList.add("hidden");
+        captureBtn.classList.add("hidden");
+        retakeBtn.classList.remove("hidden");
+        chooseBtn.classList.add("hidden");
+    
+        // Convertir en blob pour l’input file
+        fetch(dataUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "capture.png", { type: "image/png" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            input.files = dataTransfer.files;
+          });
+      });
+    
+      // Reprendre (relancer caméra)
+      retakeBtn.addEventListener("click", () => {
+        preview.classList.add("hidden");
+        retakeBtn.classList.add("hidden");
+        openBtn.classList.remove("hidden");
+        chooseBtn.classList.remove("hidden");
+      });
+    
+      // Choisir un fichier classique
+      chooseBtn.addEventListener("click", () => {
+        input.click();
+      });
+    
+      // Afficher aperçu si fichier choisi
+      input.addEventListener("change", () => {
+        if (input.files && input.files[0]) {
+          const file = input.files[0];
+          if (file.type.startsWith("image/")) {
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove("hidden");
+          } else {
+            preview.classList.add("hidden");
+          }
+        }
+      });
+    }
+    </script>
+    
+<script>
+    setupControls('fichier','environment');
+  </script>
+  
+{% endblock %}

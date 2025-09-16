@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-4xl mx-auto px-4">
+    <h1 class="text-2xl font-bold mb-6">Utilisateurs et nombre d’actions</h1>
+
+    <!-- Barre de recherche -->
+    <form method="get" class="flex mb-6">
+      <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Rechercher un utilisateur (email)..."
+             class="px-4 py-2 border border-gray-300 rounded-l-xl w-full focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-xl hover:bg-indigo-700">Rechercher</button>
+    </form>
+
+    <!-- Tableau des utilisateurs -->
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Utilisateur (email)</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre d’actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for u in users_stats %}
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-6 py-4">
+              <a href="?q={{ u.utilisateur__email }}" class="text-indigo-600 hover:underline">
+                {{ u.utilisateur__email }}
+              </a>
+            </td>
+            <td class="px-6 py-4">{{ u.total }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="px-6 py-4 text-center text-gray-500">Aucun utilisateur trouvé.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination utilisateurs -->
+    {% if users_stats.has_other_pages %}
+    <div class="mt-4 mb-10 flex justify-center">
+      <ul class="flex space-x-2">
+        {% if users_stats.has_previous %}
+        <li><a id="first_user_page" href="?page=1{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&laquo; Première</a></li>
+        <li><a id="prev_user_page" href="?page={{ users_stats.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&lt;</a></li>
+        {% endif %}
+
+        <li><span class="px-3 py-1 bg-indigo-600 text-white rounded-lg">{{ users_stats.number }}</span></li>
+
+        {% if users_stats.number < users_stats.paginator.num_pages %}
+        <li><a id="last_user_page" href="?page={{ users_stats.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-indigo-600 hover:text-white">{{ users_stats.paginator.num_pages }}</a></li>
+        {% endif %}
+
+        {% if users_stats.has_next %}
+        <li><a id="next_user_page" href="?page={{ users_stats.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&gt;</a></li>
+        <li><a id="last_user_page_alt" href="?page={{ users_stats.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Dernière &raquo;</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Tableau actions utilisateur si on a recherché un utilisateur précis -->
+    {% if journaux %}
+    <h2 class="text-xl font-bold mb-4">Actions de {{ query }}</h2>
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Action</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Citoyen</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for journal in journaux %}
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-6 py-4">{{ journal.action }}</td>
+            <td class="px-6 py-4">{{ journal.citoyen }}</td>
+            <td class="px-6 py-4">{{ journal.date_creation }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">Aucune action trouvée.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination actions utilisateur -->
+    {% if journaux.has_other_pages %}
+    <div class="mt-4 mb-10 flex justify-center">
+      <ul class="flex space-x-2">
+        {% if journaux.has_previous %}
+        <li><a id="first_action_page" href="?q={{ query }}&page=1" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&laquo; Première</a></li>
+        <li><a id="prev_action_page" href="?q={{ query }}&page={{ journaux.previous_page_number }}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&lt;</a></li>
+        {% endif %}
+
+        <li><span class="px-3 py-1 bg-indigo-600 text-white rounded-lg">{{ journaux.number }}</span></li>
+
+        {% if journaux.number < journaux.paginator.num_pages %}
+        <li><a id="last_action_page" href="?q={{ query }}&page={{ journaux.paginator.num_pages }}" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-indigo-600 hover:text-white">{{ journaux.paginator.num_pages }}</a></li>
+        {% endif %}
+
+        {% if journaux.has_next %}
+        <li><a id="next_action_page" href="?q={{ query }}&page={{ journaux.next_page_number }}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&gt;</a></li>
+        <li><a id="last_action_page_alt" href="?q={{ query }}&page={{ journaux.paginator.num_pages }}" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Dernière &raquo;</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
