@@ -621,33 +621,70 @@ from django.http import HttpResponse
 from .models import Citoyen
 import tempfile
 import os
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from pdf2image import convert_from_bytes
+from io import BytesIO
+from django.contrib.auth.decorators import login_required
+import zipfile
 
 @login_required(login_url="signin")
 def telecharger_carte_image(request, citoyen_id):
     citoyen = get_object_or_404(Citoyen, pk=citoyen_id)
+
+    # Générer le HTML
     html_string = render_to_string("core/carte_pdf.html", {"citoyen": citoyen})
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
 
-    # Créer un fichier temporaire
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
-        tmp_file.write(html_string.encode("utf-8"))
-        tmp_file_path = tmp_file.name
+    # Générer le PDF en mémoire
+    pdf_bytes = html.write_pdf()
 
-    options = {
-        'format': 'png',
-        'encoding': "UTF-8",
-        'width': 800,
-        'disable-smart-width': '',
-    }
+    # Convertir le PDF en images PNG (une image par page)
+    images = convert_from_bytes(pdf_bytes)
 
-    # Génération PNG depuis fichier temporaire
-    png_bytes = imgkit.from_file(tmp_file_path, False, options=options)
+    # Créer un ZIP contenant les deux images
+    zip_io = BytesIO()
+    with zipfile.ZipFile(zip_io, mode="w") as zip_file:
+        for i, image in enumerate(images, start=1):
+            img_bytes_io = BytesIO()
+            image.save(img_bytes_io, format='PNG')
+            img_bytes_io.seek(0)
+            zip_file.writestr(f"Carte_{citoyen.numero_identite}_page{i}.png", img_bytes_io.read())
 
-    # Supprimer le fichier temporaire
-    os.remove(tmp_file_path)
-
-    response = HttpResponse(png_bytes, content_type="image/png")
-    response['Content-Disposition'] = f'attachment; filename=Carte_{citoyen.numero_identite}.png'
+    zip_io.seek(0)
+    response = HttpResponse(zip_io, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename=Carte_{citoyen.numero_identite}.zip'
     return response
+
+
+# @login_required(login_url="signin")
+# def telecharger_carte_image(request, citoyen_id):
+#     citoyen = get_object_or_404(Citoyen, pk=citoyen_id)
+#     html_string = render_to_string("core/carte_pdf.html", {"citoyen": citoyen})
+
+#     # Créer un fichier temporaire
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
+#         tmp_file.write(html_string.encode("utf-8"))
+#         tmp_file_path = tmp_file.name
+
+#     options = {
+#         'format': 'png',
+#         'encoding': "UTF-8",
+#         'width': 800,
+#         'disable-smart-width': '',
+#     }
+
+#     # Génération PNG depuis fichier temporaire
+#     png_bytes = imgkit.from_file(tmp_file_path, False, options=options)
+
+#     # Supprimer le fichier temporaire
+#     os.remove(tmp_file_path)
+
+#     response = HttpResponse(png_bytes, content_type="image/png")
+#     response['Content-Disposition'] = f'attachment; filename=Carte_{citoyen.numero_identite}.png'
+#     return response
 
 
 
@@ -705,7 +742,7 @@ from .models import Citoyen
 @login_required(login_url="signin")
 def verifier_qr(request):
     # On récupère le contenu du QR code scanné ou entré par l'utilisateur
-    numero = request.GET.get("qr")
+    numero = request.GET.get("numero")
 
     citoyen = None
     statut = "inexistante"
