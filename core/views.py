@@ -639,26 +639,46 @@ from io import BytesIO
 import zipfile
 from django.conf import settings
 from django.templatetags.static import static
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from pdf2image import convert_from_bytes
+from io import BytesIO
+import zipfile
+from django.templatetags.static import static
+from django.conf import settings
+
+from .models import Citoyen
 
 @login_required(login_url="signin")
 def telecharger_carte_image(request, citoyen_id):
     citoyen = get_object_or_404(Citoyen, pk=citoyen_id)
 
-    # Générer le HTML avec les bons chemins d’images
-    html_string = render_to_string("core/carte_pdf.html", {
+    # Préparer toutes les URLs absolues pour les images statiques
+    static_base = request.build_absolute_uri('/')[:-1]  # base absolue
+    context = {
         "citoyen": citoyen,
-        "STATIC_URL": request.build_absolute_uri(static("")),
+        "fondudps": static_base + static("img/fondudps.jpg"),
+        "logo_udps": static_base + static("img/logo_udps.jpg"),
+        "udps_logo": static_base + static("img/udps_logo.jpg"),
+        "coter": static_base + static("img/coter.jpg"),
+        
         "MEDIA_URL": request.build_absolute_uri(settings.MEDIA_URL),
-    })
+    }
+
+    # Générer le HTML
+    html_string = render_to_string("core/carte_pdf.html", context)
 
     # Créer le PDF depuis le HTML
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
     pdf_bytes = html.write_pdf()
 
     # Convertir le PDF en images (recto + verso)
     images = convert_from_bytes(pdf_bytes)
 
-    # Créer un fichier ZIP contenant les deux images PNG
+    # Créer un fichier ZIP contenant les images PNG
     zip_io = BytesIO()
     with zipfile.ZipFile(zip_io, mode="w") as zip_file:
         for i, image in enumerate(images, start=1):
@@ -671,6 +691,38 @@ def telecharger_carte_image(request, citoyen_id):
     response = HttpResponse(zip_io, content_type="application/zip")
     response['Content-Disposition'] = f'attachment; filename=Carte_{citoyen.numero_identite}.zip'
     return response
+
+# @login_required(login_url="signin")
+# def telecharger_carte_image(request, citoyen_id):
+#     citoyen = get_object_or_404(Citoyen, pk=citoyen_id)
+
+#     # Générer le HTML avec les bons chemins d’images
+#     html_string = render_to_string("core/carte_pdf.html", {
+#         "citoyen": citoyen,
+#         "STATIC_URL": request.build_absolute_uri(static("")),
+#         "MEDIA_URL": request.build_absolute_uri(settings.MEDIA_URL),
+#     })
+
+#     # Créer le PDF depuis le HTML
+#     html = HTML(string=html_string, base_url=request.build_absolute_uri())
+#     pdf_bytes = html.write_pdf()
+
+#     # Convertir le PDF en images (recto + verso)
+#     images = convert_from_bytes(pdf_bytes)
+
+#     # Créer un fichier ZIP contenant les deux images PNG
+#     zip_io = BytesIO()
+#     with zipfile.ZipFile(zip_io, mode="w") as zip_file:
+#         for i, image in enumerate(images, start=1):
+#             img_bytes_io = BytesIO()
+#             image.save(img_bytes_io, format='PNG')
+#             img_bytes_io.seek(0)
+#             zip_file.writestr(f"Carte_{citoyen.numero_identite}_page{i}.png", img_bytes_io.read())
+
+#     zip_io.seek(0)
+#     response = HttpResponse(zip_io, content_type="application/zip")
+#     response['Content-Disposition'] = f'attachment; filename=Carte_{citoyen.numero_identite}.zip'
+#     return response
 
 # @login_required(login_url="signin")
 # def telecharger_carte_image(request, citoyen_id):

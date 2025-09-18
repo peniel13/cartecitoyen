@@ -2,6 +2,199 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<meta charset="UTF-8">
+<title>Carte d'identité RDC</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    margin: 0;
+  }
+  .page {
+    width: 600px;
+    height: 350px;
+    margin: 40px auto;
+    position: relative;
+    page-break-after: always;
+  }
+  .id-card {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    position: relative;
+    display: flex;
+    overflow: hidden;
+  }
+  .id-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('{{ fondudps }}');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    z-index: 0;
+  }
+  .id-card > * { position: relative; z-index: 1; }
+
+  .flag {
+    position: absolute;
+    top: 10px; left: 20px;
+    width: 50px; height: 30px;
+    background: url('{{ logo_udps }}') no-repeat center / contain;
+    z-index: 3;
+    border-radius: 3px;
+  }
+
+  .photo {
+    width: 150px; height: 180px; margin-right: 20px;
+    border: 1px solid #999;
+    background-size: cover; background-position: center;
+    position: relative; z-index: 2;
+  }
+
+  .info { flex: 1; font-size: 14px; }
+  .info h3 { margin-top: 0; font-size: 18px; color: #005baa; text-transform: uppercase; }
+  .label { font-weight: bold; color: #333; }
+
+  .signature {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    text-align: center; font-style: italic; z-index: 2;
+  }
+  .signature img { width: 100px; max-height: 50px; object-fit: contain; }
+
+  .qr { position: absolute; bottom: 20px; left: 20px; width: 80px; height: 80px; object-fit: cover; z-index: 2; }
+
+  .watermark {
+    position: absolute; bottom: 10px; left: 50%;
+    transform: translateX(-50%) rotate(-20deg);
+    opacity: 0.1; font-size: 80px; z-index: 0;
+  }
+
+  .verso {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .verso::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('{{ coter }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.25;
+    z-index: 0;
+  }
+  .verso > * { position: relative; z-index: 1; }
+  .verso h2 {
+    margin: 10px 0 5px;
+    font-size: 22px;
+    color: #005baa;
+    text-transform: uppercase;
+  }
+  .verso h4 {
+    margin: 5px 0 15px;
+    font-weight: normal;
+    font-size: 16px;
+    color: #333;
+  }
+  .verso p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #222;
+  }
+  .verso img {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 100px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : Recto -->
+<div class="page">
+  <div class="id-card">
+    <div class="flag"></div>
+
+    {% if citoyen.photo %}
+      <div class="photo" style="background-image: url('{{ MEDIA_URL }}{{ citoyen.photo }}');"></div>
+    {% else %}
+      <div class="photo"></div>
+    {% endif %}
+
+    <div class="info">
+      <h3>UDPS/TSHISEKEDI CARTE MEMBRE</h3>
+      <p><span class="label">Prénom:</span> {{ citoyen.prenom }}</p>
+      <p><span class="label">Nom:</span> {{ citoyen.nom }}</p>
+      <p><span class="label">Postnom:</span> {{ citoyen.postnom }}</p>
+      <p><span class="label">Nationalité:</span> {{ citoyen.nationalite }}</p>
+      <p><span class="label">Sexe:</span> {{ citoyen.sexe }}</p>
+      <p><span class="label">Date de naissance:</span> {{ citoyen.date_naissance|date:"d M Y" }}</p>
+      <p><span class="label">Lieu de naissance:</span> {{ citoyen.lieu_naissance }}</p>
+      <p><span class="label">Numéro de carte:</span> {{ citoyen.numero_identite }}</p>
+      <p><span class="label">Date d’expiration:</span> {{ citoyen.date_expiration|date:"d M Y" }}</p>
+    </div>
+
+    <div class="signature">
+      <p><span class="label">Province:</span> {{ citoyen.province }}</p>
+      <p><span class="label">Fédération:</span> {{ citoyen.federation }}</p>
+      <p><span class="label">Cellule:</span> {{ citoyen.cellule }}</p>
+      <p><span class="label">Qualité:</span> {{ citoyen.get_statut_adhesion_display }}</p>
+      <p>Signature du titulaire</p>
+      {% if citoyen.signature %}
+        <img src="{{ MEDIA_URL }}{{ citoyen.signature }}" alt="signature">
+      {% endif %}
+    </div>
+
+    {% if citoyen.qr_code %}
+      <img src="{{ MEDIA_URL }}{{ citoyen.qr_code }}" class="qr" alt="QR Code">
+    {% endif %}
+
+    <div class="watermark">🐆</div>
+  </div>
+</div>
+
+<!-- PAGE 2 : Verso -->
+<div class="page">
+  <div class="verso">
+    <h2>Union pour la Démocratie et le Progrès Social / TSHISEKEDI </h2>
+    <h4>UDPS/TSHISEKEDI PRONE LA NON VIOLENCE</h4>
+    <h4>UDPS/TSHISEKEDI PRONE L'ETAT DE DROIT</h4>
+    <h4>UDPS/TSHISEKEDI PRONE LE PEUPLE D'ABORD</h4>
+    <p>
+      Cette carte atteste de l’adhésion officielle au parti UDPS.  
+      Elle demeure la propriété du parti et doit être restituée sur demande.  
+      Toute falsification ou usage abusif expose son auteur à des poursuites.
+    </p>
+    <img src="{{ udps_logo }}" alt="Logo UDPS"> 
+  </div>
+</div>
+
+</body>
+</html>
+
+
+{% comment %} {% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
   <meta charset="UTF-8">
   <title>Carte d'identité RDC</title>
   <style>
@@ -222,7 +415,7 @@
 </div>
 
 </body>
-</html>
+</html> {% endcomment %}
 
 
 
