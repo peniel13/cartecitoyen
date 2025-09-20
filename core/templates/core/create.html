@@ -4,39 +4,40 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-10">
   <div class="max-w-5xl mx-auto px-4">
+
     <!-- Stepper -->
-<div class="overflow-x-auto">
-    <ol class="flex items-center w-max space-x-4 mb-8">
-      <li class="flex-none">
-        <div class="flex items-center">
-          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-semibold">1</div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-indigo-600">Créer </p>
-            <p class="text-xs text-gray-500">Citoyen enregistré </p>
+    <div class="overflow-x-auto">
+      <ol class="flex items-center w-max space-x-4 mb-8">
+        <li class="flex-none">
+          <div class="flex items-center">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-semibold">1</div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-indigo-600">Créer </p>
+              <p class="text-xs text-gray-500">Citoyen enregistré </p>
+            </div>
           </div>
-        </div>
-      </li>
-      <li class="flex-none">
-        <div class="flex items-center opacity-60">
-          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">2</div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-700">Ajouter documents</p>
-            <p class="text-xs text-gray-500">Pièces justificatives</p>
+        </li>
+        <li class="flex-none">
+          <div class="flex items-center opacity-60">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">2</div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-700">Ajouter documents</p>
+              <p class="text-xs text-gray-500">Pièces justificatives</p>
+            </div>
           </div>
-        </div>
-      </li>
-      <li class="flex-none">
-        <div class="flex items-center opacity-60">
-          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">3</div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-700">Ajouter témoins</p>
-            <p class="text-xs text-gray-500">Validation humaine</p>
+        </li>
+        <li class="flex-none">
+          <div class="flex items-center opacity-60">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700 font-semibold">3</div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-700">Ajouter témoins</p>
+              <p class="text-xs text-gray-500">Validation humaine</p>
+            </div>
           </div>
-        </div>
-      </li>
-    </ol>
-  </div>
-  
+        </li>
+      </ol>
+    </div>
+
     <!-- Card -->
     <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 transition-all duration-300">
       <div class="flex items-center justify-between">
@@ -55,83 +56,54 @@
       </div>
       {% endif %}
 
-      <!-- Form -->
-       <!-- Formulaire -->
-    <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Formulaire -->
+      <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {% csrf_token %}
-  
-        <!-- Col 1 -->
+
+        <!-- Colonne 1 -->
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">Prénom</label>
             <input type="text" name="prenom" value="{{ form.prenom.value|default_if_none:'' }}" required
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Postnom</label>
             <input type="text" name="postnom" value="{{ form.postnom.value|default_if_none:'' }}" required
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Nom</label>
             <input type="text" name="nom" value="{{ form.nom.value|default_if_none:'' }}" required
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Date de naissance</label>
-            <input 
-                id="date_naissance" 
-                name="date_naissance" 
-                value="{{ form.date_naissance.value|default_if_none:'' }}" 
-                required
-                placeholder="jj/mm/aaaa"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
+            <input id="date_naissance" name="date_naissance" value="{{ form.date_naissance.value|default_if_none:'' }}" 
+                   required placeholder="jj/mm/aaaa"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-          
-          <script>
-            const input = document.getElementById('date_naissance');
-          
-            // Détecter si c'est un mobile
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-          
-            if (!isMobile) {
-              // desktop => input type date pour calendrier
-              input.type = 'date';
-            } else {
-              // mobile => input type text pour permettre saisie manuelle
-              input.type = 'text';
-              // optionnel : ajouter un petit masque jj/mm/aaaa
-              input.addEventListener('input', e => {
-                let val = e.target.value.replace(/\D/g, '').slice(0,8); // chiffres seulement
-                if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
-                else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
-                else e.target.value = val;
-              });
-            }
-          </script>
-          
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Lieu de naissance</label>
             <input type="text" name="lieu_naissance" value="{{ form.lieu_naissance.value|default_if_none:'' }}"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Nationalité</label>
             <input type="text" name="nationalite" value="{{ form.nationalite.value|default_if_none:'' }}"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Sexe</label>
             {{ form.sexe }}
           </div>
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Date d’expiration</label>
             <select 
@@ -139,286 +111,181 @@
                 name="date_expiration_fk"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-                <option value="">-- Choisir une date --</option>
-                {% for obj in form.date_expiration_fk.field.queryset %}
-                  <option value="{{ obj.id }}" {% if form.date_expiration_fk.value == obj.id %}selected{% endif %}>
-                    {{ obj }}
-                  </option>
-                {% endfor %}
+              <option value="">-- Choisir une date --</option>
+              {% for obj in form.date_expiration_fk.field.queryset %}
+                <option value="{{ obj.id }}" {% if form.date_expiration_fk.value == obj.id %}selected{% endif %}>
+                  {{ obj }}
+                </option>
+              {% endfor %}
             </select>
           </div>
-          
-          
-          <script>
-            const expirationInput = document.getElementById('date_expiration');
-          
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-          
-            if (!isMobile) {
-              // desktop => input type date pour calendrier
-              expirationInput.type = 'date';
-            } else {
-              // mobile => input type text pour permettre saisie manuelle
-              expirationInput.type = 'text';
-              expirationInput.addEventListener('input', e => {
-                let val = e.target.value.replace(/\D/g, '').slice(0,8);
-                if (val.length >= 5) e.target.value = val.slice(0,2)+'/'+val.slice(2,4)+'/'+val.slice(4);
-                else if (val.length >= 3) e.target.value = val.slice(0,2)+'/'+val.slice(2);
-                else e.target.value = val;
-              });
-            }
-          </script>
-          
-  
+
           <div>
             <label class="block text-sm font-medium text-gray-700">Statut</label>
             {{ form.statut }}
           </div>
-         
-          
-           <!-- Ajout province -->
-           <div>
+
+          <!-- Province, Fédération, Cellule, Adhésion -->
+          <div>
             <label class="block text-sm font-medium text-gray-700">Province</label>
             {% render_field form.province class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-gray-700">Fédération</label>
             {% render_field form.federation class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-gray-700">Cellule</label>
             {% render_field form.cellule class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-gray-700">Adhésion</label>
             {% render_field form.statut_adhesion class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
           </div>
-          
-          
         </div>
-  
-        <!-- Col 2 -->
+
+        <!-- Colonne 2 : photo & signature -->
         <div class="space-y-6">
-          {% comment %} <div>
+          <!-- Photo -->
+          <div>
             <label class="block text-sm font-medium text-gray-700">Photo</label>
-            <input type="file" name="photo" accept="image/*"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div> {% endcomment %}
-          <!-- PHOTO -->
-<div>
-    <label class="block text-sm font-medium text-gray-700">Photo</label>
-  
-    <div class="mt-2 flex items-center gap-2">
-      <button type="button" id="openPhotoCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
-      <button type="button" id="capturePhotoBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
-      <button type="button" id="retakePhotoBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
-      <button type="button" id="choosePhotoBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
-    </div>
-  
-    <!-- input file caché (sera renseigné automatiquement après capture) -->
-    <input type="file" id="photoInput" name="photo" accept="image/*" class="hidden">
-  
-    <div class="mt-3">
-      <video id="photoVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
-      <canvas id="photoCanvas" class="hidden"></canvas>
-      <img id="photoPreview" class="hidden w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
-    </div>
-  </div>
-          
-          {% comment %} <div>
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" id="openPhotoCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+              <button type="button" id="capturePhotoBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+              <button type="button" id="retakePhotoBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+              <button type="button" id="choosePhotoBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+            </div>
+            <input type="file" id="photoInput" name="photo" accept="image/*" class="hidden">
+            <div class="mt-3">
+              <video id="photoVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
+              <canvas id="photoCanvas" class="hidden"></canvas>
+              <img id="photoPreview" class="hidden w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
+            </div>
+          </div>
+
+          <!-- Signature -->
+          <div>
             <label class="block text-sm font-medium text-gray-700">Signature</label>
-            <input type="file" name="signature" accept="image/*"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-          </div> {% endcomment %}
-          <!-- SIGNATURE -->
-<div>
-    <label class="block text-sm font-medium text-gray-700">Signature</label>
-  
-    <div class="mt-2 flex items-center gap-2">
-      <button type="button" id="openSignatureCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
-      <button type="button" id="captureSignatureBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
-      <button type="button" id="retakeSignatureBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
-      <button type="button" id="chooseSignatureBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
-    </div>
-  
-    <input type="file" id="signatureInput" name="signature" accept="image/*" class="hidden">
-  
-    <div class="mt-3">
-      <video id="signatureVideo" autoplay playsinline class="hidden w-40 h-24 rounded-lg object-cover border"></video>
-      <canvas id="signatureCanvas" class="hidden"></canvas>
-      <img id="signaturePreview" class="hidden w-40 h-16 object-contain rounded-md ring-1 ring-gray-200 bg-white">
-    </div>
-  </div>
-          
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" id="openSignatureCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+              <button type="button" id="captureSignatureBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+              <button type="button" id="retakeSignatureBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+              <button type="button" id="chooseSignatureBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+            </div>
+            <input type="file" id="signatureInput" name="signature" accept="image/*" class="hidden">
+            <div class="mt-3">
+              <video id="signatureVideo" autoplay playsinline class="hidden w-40 h-24 rounded-lg object-cover border"></video>
+              <canvas id="signatureCanvas" class="hidden"></canvas>
+              <img id="signaturePreview" class="hidden w-40 h-16 object-contain rounded-md ring-1 ring-gray-200 bg-white">
+            </div>
+          </div>
         </div>
-  
+
         <!-- Bouton -->
         <div class="md:col-span-2">
-          <button type="submit"
-                  class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+          <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
             Enregistrer
           </button>
         </div>
       </form>
-     
+
     </div>
   </div>
 </div>
 
 <script>
-  // previews
+  // --- Préviews photo & signature ---
   const photoInput = document.getElementById('photoInput');
   const photoPreview = document.getElementById('photoPreview');
-  if (photoInput) {
-    photoInput.addEventListener('change', e => {
-      const [file] = e.target.files || [];
-      if (file) { photoPreview.src = URL.createObjectURL(file); photoPreview.classList.remove('hidden'); }
-    });
-  }
+  if (photoInput) photoInput.addEventListener('change', e => {
+    const [file] = e.target.files || [];
+    if (file) { photoPreview.src = URL.createObjectURL(file); photoPreview.classList.remove('hidden'); }
+  });
   const signatureInput = document.getElementById('signatureInput');
   const signaturePreview = document.getElementById('signaturePreview');
-  if (signatureInput) {
-    signatureInput.addEventListener('change', e => {
+  if (signatureInput) signatureInput.addEventListener('change', e => {
+    const [file] = e.target.files || [];
+    if (file) { signaturePreview.src = URL.createObjectURL(file); signaturePreview.classList.remove('hidden'); }
+  });
+
+  // --- Caméra ---
+  const streams = {};
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  async function startCamera(target, facingMode = "environment") {
+    const video = document.getElementById(`${target}Video`);
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert("Caméra non supportée"); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+      streams[target] = stream; video.srcObject = stream; video.classList.remove("hidden");
+      document.getElementById(`capture${capitalize(target)}Btn`).classList.remove("hidden");
+      document.getElementById(`${target}Preview`).classList.add("hidden");
+    } catch (err) { console.error(err); alert("Impossible d'accéder à la caméra"); }
+  }
+  function stopCamera(target) {
+    const s = streams[target];
+    if (s) s.getTracks().forEach(t => t.stop());
+    delete streams[target];
+    const video = document.getElementById(`${target}Video`);
+    if (video) { video.pause(); video.srcObject = null; video.classList.add("hidden"); }
+    const capBtn = document.getElementById(`capture${capitalize(target)}Btn`);
+    if (capBtn) capBtn.classList.add("hidden");
+  }
+  function captureImage(target) {
+    const video = document.getElementById(`${target}Video`);
+    const canvas = document.getElementById(`${target}Canvas`);
+    const preview = document.getElementById(`${target}Preview`);
+    if (!video || !canvas || !preview) return;
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+      if (!blob) { alert("Erreur capture"); return; }
+      const file = new File([blob], `${target}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const dt = new DataTransfer(); dt.items.add(file);
+      document.getElementById(`${target}Input`).files = dt.files;
+      preview.src = URL.createObjectURL(file); preview.classList.remove("hidden");
+      stopCamera(target); document.getElementById(`retake${capitalize(target)}Btn`).classList.remove("hidden");
+    }, 'image/jpeg', 0.95);
+  }
+  function setupControls(target, facingMode) {
+    document.getElementById(`open${capitalize(target)}CameraBtn`).addEventListener('click', () => startCamera(target, facingMode));
+    document.getElementById(`capture${capitalize(target)}Btn`).addEventListener('click', () => captureImage(target));
+    document.getElementById(`retake${capitalize(target)}Btn`).addEventListener('click', () => {
+      document.getElementById(`${target}Preview`).classList.add("hidden");
+      document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
+      startCamera(target, facingMode);
+    });
+    document.getElementById(`choose${capitalize(target)}Btn`).addEventListener('click', () => {
+      document.getElementById(`${target}Input`).click();
+    });
+    document.getElementById(`${target}Input`).addEventListener('change', e => {
       const [file] = e.target.files || [];
-      if (file) { signaturePreview.src = URL.createObjectURL(file); signaturePreview.classList.remove('hidden'); }
+      if (file) {
+        const preview = document.getElementById(`${target}Preview`);
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('hidden');
+        document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
+      }
+    });
+  }
+  setupControls('photo', 'environment');
+  setupControls('signature', 'environment');
+  window.addEventListener('beforeunload', () => { stopCamera('photo'); stopCamera('signature'); });
+
+  // --- Conversion date_naissance mobile-friendly ---
+  const formEl = document.querySelector('form[enctype="multipart/form-data"]');
+  if (formEl) {
+    formEl.addEventListener('submit', e => {
+      const naissanceInput = document.getElementById('date_naissance');
+      if (naissanceInput && naissanceInput.type === 'text') {
+        const parts = naissanceInput.value.split('/');
+        if (parts.length === 3) {
+          naissanceInput.value = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+        }
+      }
+      stopCamera('photo'); stopCamera('signature');
     });
   }
 </script>
-<script>
-    // map pour stocker les streams actifs
-    const streams = {};
-  
-    function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
-  
-    async function startCamera(target, facingMode = "environment") {
-      const video = document.getElementById(`${target}Video`);
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Votre navigateur ne supporte pas la caméra via getUserMedia.");
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-        streams[target] = stream;
-        video.srcObject = stream;
-        video.classList.remove("hidden");
-        // afficher bouton Capturer
-        document.getElementById(`capture${capitalize(target)}Btn`).classList.remove("hidden");
-        // masquer preview précédent
-        document.getElementById(`${target}Preview`).classList.add("hidden");
-      } catch (err) {
-        console.error("Erreur camera:", err);
-        alert("Impossible d'accéder à la caméra : " + err.message);
-      }
-    }
-  
-    function stopCamera(target) {
-      const s = streams[target];
-      if (s) {
-        s.getTracks().forEach(t => t.stop());
-        delete streams[target];
-      }
-      const video = document.getElementById(`${target}Video`);
-      if (video) {
-        video.pause();
-        video.srcObject = null;
-        video.classList.add("hidden");
-      }
-      // masquer bouton capturer
-      const capBtn = document.getElementById(`capture${capitalize(target)}Btn`);
-      if (capBtn) capBtn.classList.add("hidden");
-    }
-  
-    function captureImage(target) {
-      const video = document.getElementById(`${target}Video`);
-      const canvas = document.getElementById(`${target}Canvas`);
-      const preview = document.getElementById(`${target}Preview`);
-      if (!video || !canvas || !preview) return;
-  
-      // dessiner image
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-      // convertir en blob puis créer File pour insérer dans input[type=file]
-      canvas.toBlob(blob => {
-        if (!blob) { alert("Erreur lors de la capture."); return; }
-        const file = new File([blob], `${target}_${Date.now()}.jpg`, { type: 'image/jpeg' });
-  
-        try {
-          // DataTransfer pour remplir input.files
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          const input = document.getElementById(`${target}Input`);
-          input.files = dt.files;
-        } catch (e) {
-          // fallback: si assignment échoue, on stocke en window pour traitement serveur via fetch si besoin
-          console.warn("Impossible d'assigner input.files (fallback).", e);
-          window._capturedFallback = window._capturedFallback || {};
-          window._capturedFallback[target] = file;
-        }
-  
-        // preview
-        preview.src = URL.createObjectURL(file);
-        preview.classList.remove("hidden");
-  
-        // arrêter caméra et afficher bouton Reprendre
-        stopCamera(target);
-        document.getElementById(`retake${capitalize(target)}Btn`).classList.remove("hidden");
-      }, 'image/jpeg', 0.95);
-    }
-  
-    function setupControls(target, facingMode) {
-      // open camera
-      document.getElementById(`open${capitalize(target)}CameraBtn`).addEventListener('click', () => startCamera(target, facingMode));
-      // capture
-      document.getElementById(`capture${capitalize(target)}Btn`).addEventListener('click', () => captureImage(target));
-      // retake
-      document.getElementById(`retake${capitalize(target)}Btn`).addEventListener('click', () => {
-        document.getElementById(`${target}Preview`).classList.add("hidden");
-        document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
-        startCamera(target, facingMode);
-      });
-      // open file chooser fallback
-      document.getElementById(`choose${capitalize(target)}Btn`).addEventListener('click', () => {
-        document.getElementById(`${target}Input`).click();
-      });
-      // when user picks a file via chooser, show preview
-      document.getElementById(`${target}Input`).addEventListener('change', (e) => {
-        const [file] = e.target.files || [];
-        if (file) {
-          const preview = document.getElementById(`${target}Preview`);
-          preview.src = URL.createObjectURL(file);
-          preview.classList.remove('hidden');
-          // hide retake (user selected file)
-          document.getElementById(`retake${capitalize(target)}Btn`).classList.add("hidden");
-        }
-      });
-    }
-  
-    // initialisation
-    setupControls('photo', 'environment');      // caméra arrière préférée
-    setupControls('signature', 'environment');         // front camera souvent plus adaptée pour signature
-  
-    // stop camera on unload (sécurité)
-    window.addEventListener('beforeunload', () => {
-      stopCamera('photo');
-      stopCamera('signature');
-    });
-  
-    // si tu veux t'assurer d'arrêter la caméra au submit du form
-    const form = document.querySelector('form[enctype="multipart/form-data"]');
-    if (form) {
-      form.addEventListener('submit', () => {
-        stopCamera('photo'); stopCamera('signature');
-        // si fallback (assignation impossible), on pourrait envoyer le fichier via Fetch/FormData.
-        // pour la plupart des navigateurs modernes, DataTransfer ci-dessus suffira.
-      });
-    }
-  </script>
-  
-  
 {% endblock %}
