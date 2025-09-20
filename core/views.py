@@ -328,7 +328,7 @@ def citoyen_create(request):
             citoyen.cree_par = request.user
             citoyen.save()
 
-            # Ajouter au journal
+            # Journal
             JournalAction.objects.create(
                 action="Création du citoyen",
                 utilisateur=request.user,
@@ -337,10 +337,36 @@ def citoyen_create(request):
 
             messages.success(request, "Citoyen enregistré avec succès !")
             return redirect("ajouter_document", citoyen_id=citoyen.id)
+        else:
+            # ⚠️ Si formulaire invalide, afficher un message global
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = CitoyenForm()
 
     return render(request, "core/create.html", {"form": form})
+
+# @login_required(login_url="signin")
+# def citoyen_create(request):
+#     if request.method == "POST":
+#         form = CitoyenForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             citoyen = form.save(commit=False)
+#             citoyen.cree_par = request.user
+#             citoyen.save()
+
+#             # Ajouter au journal
+#             JournalAction.objects.create(
+#                 action="Création du citoyen",
+#                 utilisateur=request.user,
+#                 citoyen=citoyen
+#             )
+
+#             messages.success(request, "Citoyen enregistré avec succès !")
+#             return redirect("ajouter_document", citoyen_id=citoyen.id)
+#     else:
+#         form = CitoyenForm()
+
+#     return render(request, "core/create.html", {"form": form})
 
 # ============================
 # DETAIL D’UN CITOYEN
@@ -1004,6 +1030,7 @@ def modifier_carte(request, citoyen_id):
             messages.success(request, "Carte citoyenne modifiée avec succès ✅")
             # Corrigé ici : utiliser request.user.id
             return redirect("profile", user_id=request.user.id)
+        
     else:
         form = CitoyenForm(instance=citoyen)
 

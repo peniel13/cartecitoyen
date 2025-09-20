@@ -82,6 +82,13 @@ from django.core.files import File
 
 #     def __str__(self):
 #         return f"{self.prenom} {self.nom} ({self.numero_identite})"
+
+class DateExpirationfk(models.Model):
+    date = models.DateField(unique=True)
+
+    def __str__(self):
+        return self.date.strftime("%d/%m/%Y")
+
 import uuid
 from io import BytesIO
 import qrcode
@@ -141,8 +148,14 @@ class Citoyen(models.Model):
     statut = models.CharField(max_length=10, choices=STATUT_CHOICES, default="pending")
     qr_code = models.ImageField(upload_to="citoyens/qrcodes/", blank=True, null=True)
 
-    date_expiration = models.DateField(blank=True, null=True)
-
+    
+    date_expiration_fk = models.ForeignKey(
+        "DateExpirationfk",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="citoyens"
+    )
     date_creation = models.DateTimeField(auto_now_add=True)
     cree_par = models.ForeignKey(
         settings.AUTH_USER_MODEL,

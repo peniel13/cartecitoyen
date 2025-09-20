@@ -169,6 +169,7 @@
       <p style="margin: 4px 0;"><span class="label">Nationalité:</span> {{ citoyen.nationalite }}</p>
       <p style="margin: 4px 0;"><span class="label">Sexe:</span> {{ citoyen.sexe }}</p>
     
+     
       <!-- Infos verticales en bas de la div info avec espacement légèrement augmenté -->
       <div class="bottom-info" style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
         <div class="info-item" style="line-height: 1.2;">
@@ -185,7 +186,7 @@
         </div>
         <div class="info-item" style="line-height: 1.2;">
             <span class="label" style="display:block; font-weight:bold; font-size:13px;">Date d’expiration:</span>
-            <span class="value" style="display:block; font-size:13px; margin-top:1px;">{{ citoyen.date_expiration|date:"d M Y" }}</span>
+            <span class="value" style="display:block; font-size:13px; margin-top:1px;">{{ citoyen.date_expiration_fk }}</span>
         </div>
     </div>
     

@@ -74,7 +74,7 @@ class UpdateProfileForm(forms.ModelForm):
 
 
 from django import forms
-from .models import Citoyen, DocumentJustificatif, Temoin
+from .models import Citoyen, DocumentJustificatif, Temoin,DateExpirationfk
 
 from django import forms
 from .models import Citoyen
@@ -154,11 +154,16 @@ class CitoyenForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "form-control"})
     )
 
-    date_expiration = forms.DateField(
-        widget=forms.DateInput(attrs={
-            "class": "form-control",
-            "type": "date"
-        })
+    # date_expiration = forms.DateField(
+    #     widget=forms.DateInput(attrs={
+    #         "class": "form-control",
+    #         "type": "date"
+    #     })
+    # )
+    date_expiration_fk = forms.ModelChoiceField(
+        queryset=DateExpirationfk.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control"})
     )
     photo = forms.ImageField(
         required=False,
@@ -184,7 +189,7 @@ class CitoyenForm(forms.ModelForm):
         fields = [
             "prenom", "postnom", "nom", "date_naissance", "lieu_naissance",
             "nationalite", "sexe", "province", "federation", "cellule",
-            "statut_adhesion", "date_expiration", "photo", "signature", "statut"
+            "statut_adhesion", "date_expiration_fk", "photo", "signature", "statut"
         ]
 
 # class CitoyenForm(forms.ModelForm):

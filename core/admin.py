@@ -56,9 +56,9 @@ admin.site.register(CustomUser, CustomUserAdmin)
 
 
 from django.contrib import admin
-from .models import Citoyen, DocumentJustificatif, Temoin, JournalAction
+from .models import Citoyen, DocumentJustificatif, Temoin, JournalAction,DateExpirationfk
 
-
+admin.site.register(DateExpirationfk)
 # ============================
 # INLINE POUR DOCUMENTS
 # ============================
@@ -83,8 +83,8 @@ class CitoyenAdmin(admin.ModelAdmin):
     list_display = (
         "prenom", "postnom", "nom", "date_naissance", "numero_identite",
         "nationalite", "sexe", "province", "federation", "cellule",
-        "statut_adhesion", "date_expiration",
-        "statut", "cree_par", "valide_par"
+        "statut_adhesion",
+        "statut", "cree_par", "valide_par","date_expiration_fk",
     )
     list_filter = ("statut", "statut_adhesion", "province", "federation", "cellule", "date_creation")
     search_fields = ("prenom", "postnom", "nom", "numero_identite", "province", "federation", "cellule")
@@ -97,7 +97,7 @@ class CitoyenAdmin(admin.ModelAdmin):
                 "prenom", "postnom", "nom",
                 "date_naissance", "lieu_naissance",
                 "nationalite", "sexe", "province", "federation", "cellule",
-                "statut_adhesion", "date_expiration",
+                "statut_adhesion", "date_expiration_fk",
                 "photo", "signature"
             )
         }),

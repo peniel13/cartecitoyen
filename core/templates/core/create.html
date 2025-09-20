@@ -134,14 +134,20 @@
   
           <div>
             <label class="block text-sm font-medium text-gray-700">Date d’expiration</label>
-            <input 
-                id="date_expiration" 
-                name="date_expiration" 
-                value="{{ form.date_expiration.value|default_if_none:'' }}" 
-                placeholder="jj/mm/aaaa"
+            <select 
+                id="date_expiration_fk" 
+                name="date_expiration_fk"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
+                <option value="">-- Choisir une date --</option>
+                {% for obj in form.date_expiration_fk.field.queryset %}
+                  <option value="{{ obj.id }}" {% if form.date_expiration_fk.value == obj.id %}selected{% endif %}>
+                    {{ obj }}
+                  </option>
+                {% endfor %}
+            </select>
           </div>
+          
           
           <script>
             const expirationInput = document.getElementById('date_expiration');
