@@ -16,6 +16,7 @@
 
     <!-- Onglets -->
     <!-- Onglets -->
+<!-- Onglets -->
 <div x-data="{ tab: 'provinces' }">
   <div class="flex border-b mb-6 overflow-x-auto scrollbar-hide">
     <div class="flex flex-nowrap">
@@ -39,57 +40,74 @@
               class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
         Qualité membre
       </button>
+      <button @click="tab = 'sexe'" 
+              :class="tab === 'sexe' ? 'border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-600'"
+              class="px-4 py-2 border-b-2 font-medium flex-shrink-0">
+        Sexe
+      </button>
     </div>
   </div>
 
-      <!-- Provinces -->
-      <div x-show="tab === 'provinces'" class="space-y-2">
-        {% for item in provinces_count %}
-          <a href="?filtre=province&valeur={{ item.province }}"
-             class="block px-4 py-2 rounded-lg border {% if filtre == 'province' and valeur == item.province %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
-            {{ item.province|default:"-" }} ({{ item.total }})
-          </a>
-        {% empty %}
-          <p class="text-gray-500">Aucune province</p>
-        {% endfor %}
-      </div>
+  <!-- Provinces -->
+  <div x-show="tab === 'provinces'" class="space-y-2">
+    {% for item in provinces_count %}
+      <a href="?filtre=province&valeur={{ item.province }}"
+         class="block px-4 py-2 rounded-lg border {% if filtre == 'province' and valeur == item.province %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
+        {{ item.province|default:"-" }} ({{ item.total }})
+      </a>
+    {% empty %}
+      <p class="text-gray-500">Aucune province</p>
+    {% endfor %}
+  </div>
 
-      <!-- Fédérations -->
-      <div x-show="tab === 'federations'" class="space-y-2">
-        {% for item in federations_count %}
-          <a href="?filtre=federation&valeur={{ item.federation }}"
-             class="block px-4 py-2 rounded-lg border {% if filtre == 'federation' and valeur == item.federation %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
-            {{ item.federation|default:"-" }} ({{ item.total }})
-          </a>
-        {% empty %}
-          <p class="text-gray-500">Aucune fédération</p>
-        {% endfor %}
-      </div>
+  <!-- Fédérations -->
+  <div x-show="tab === 'federations'" class="space-y-2">
+    {% for item in federations_count %}
+      <a href="?filtre=federation&valeur={{ item.federation }}"
+         class="block px-4 py-2 rounded-lg border {% if filtre == 'federation' and valeur == item.federation %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
+        {{ item.federation|default:"-" }} ({{ item.total }})
+      </a>
+    {% empty %}
+      <p class="text-gray-500">Aucune fédération</p>
+    {% endfor %}
+  </div>
 
-      <!-- Cellules -->
-      <div x-show="tab === 'cellules'" class="space-y-2">
-        {% for item in cellules_count %}
-          <a href="?filtre=cellule&valeur={{ item.cellule }}"
-             class="block px-4 py-2 rounded-lg border {% if filtre == 'cellule' and valeur == item.cellule %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
-            {{ item.cellule|default:"-" }} ({{ item.total }})
-          </a>
-        {% empty %}
-          <p class="text-gray-500">Aucune cellule</p>
-        {% endfor %}
-      </div>
+  <!-- Cellules -->
+  <div x-show="tab === 'cellules'" class="space-y-2">
+    {% for item in cellules_count %}
+      <a href="?filtre=cellule&valeur={{ item.cellule }}"
+         class="block px-4 py-2 rounded-lg border {% if filtre == 'cellule' and valeur == item.cellule %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
+        {{ item.cellule|default:"-" }} ({{ item.total }})
+      </a>
+    {% empty %}
+      <p class="text-gray-500">Aucune cellule</p>
+    {% endfor %}
+  </div>
 
-      <!-- Adhésions -->
-      <div x-show="tab === 'adhesions'" class="space-y-2">
-        {% for item in statut_adhesion_count %}
-          <a href="?filtre=statut_adhesion&valeur={{ item.statut_adhesion }}"
-             class="block px-4 py-2 rounded-lg border {% if filtre == 'statut_adhesion' and valeur == item.statut_adhesion %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
-            {{ item.statut_adhesion|title }} ({{ item.total }})
-          </a>
-        {% empty %}
-          <p class="text-gray-500">Aucune adhésion</p>
-        {% endfor %}
-      </div>
-    </div>
+  <!-- Adhésions -->
+  <div x-show="tab === 'adhesions'" class="space-y-2">
+    {% for item in statut_adhesion_count %}
+      <a href="?filtre=statut_adhesion&valeur={{ item.statut_adhesion }}"
+         class="block px-4 py-2 rounded-lg border {% if filtre == 'statut_adhesion' and valeur == item.statut_adhesion %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
+        {{ item.statut_adhesion|title }} ({{ item.total }})
+      </a>
+    {% empty %}
+      <p class="text-gray-500">Aucune adhésion</p>
+    {% endfor %}
+  </div>
+
+  <!-- Sexe -->
+  <div x-show="tab === 'sexe'" class="space-y-2">
+    {% for item in sexe_count %}
+      <a href="?filtre=sexe&valeur={{ item.sexe }}"
+         class="block px-4 py-2 rounded-lg border {% if filtre == 'sexe' and valeur == item.sexe %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-100{% endif %}">
+        {% if item.sexe == "M" %} Masculin {% elif item.sexe == "F" %} Féminin {% else %} - {% endif %} ({{ item.total }})
+      </a>
+    {% empty %}
+      <p class="text-gray-500">Aucun sexe</p>
+    {% endfor %}
+  </div>
+</div>
 
     <!-- Total -->
     <p class="mt-6 text-gray-700 font-semibold">

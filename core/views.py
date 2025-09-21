@@ -190,7 +190,7 @@ from .models import Citoyen
 
 @login_required(login_url="signin")
 def citoyens_dashboard_stats(request):
-    # Récupérer la valeur du filtre (province, federation, cellule, statut_adhesion)
+    # Récupérer la valeur du filtre (province, federation, cellule, statut_adhesion, sexe)
     filtre = request.GET.get("filtre", "").strip()
     valeur = request.GET.get("valeur", "").strip()
 
@@ -206,6 +206,7 @@ def citoyens_dashboard_stats(request):
     federations_count = Citoyen.objects.values('federation').annotate(total=Count('id')).order_by('-total')
     cellules_count = Citoyen.objects.values('cellule').annotate(total=Count('id')).order_by('-total')
     statut_adhesion_count = Citoyen.objects.values('statut_adhesion').annotate(total=Count('id')).order_by('-total')
+    sexe_count = Citoyen.objects.values('sexe').annotate(total=Count('id')).order_by('-total')
 
     context = {
         "citoyens_count": citoyens_qs.count(),
@@ -213,10 +214,12 @@ def citoyens_dashboard_stats(request):
         "federations_count": federations_count,
         "cellules_count": cellules_count,
         "statut_adhesion_count": statut_adhesion_count,
+        "sexe_count": sexe_count,
         "filtre": filtre,
         "valeur": valeur,
     }
     return render(request, "core/citoyens_stats.html", context)
+
 
 
 # @login_required(login_url="signin")
