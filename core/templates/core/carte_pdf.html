@@ -39,7 +39,7 @@
     background-image: url('{{ fondudps }}');
     background-size: cover;
     background-position: center;
-    opacity: 0.2;
+    opacity: 0.25;
     z-index: 0;
   }
   .id-card > * { position: relative; z-index: 1; }
@@ -199,7 +199,7 @@
       <p><span class="label">Fédération:</span> {{ citoyen.federation }}</p>
       <p><span class="label">Cellule:</span> {{ citoyen.cellule }}</p>
       <p><span class="label">Qualité:</span> {{ citoyen.get_statut_adhesion_display }}</p>
-      <p>Signature du titulaire</p>
+      <p>Signature du Président</p>
       {% if citoyen.signature %}
         <img src="{{ MEDIA_URL }}{{ citoyen.signature }}" alt="signature">
       {% endif %}
