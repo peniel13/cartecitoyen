@@ -24,10 +24,10 @@
             <div class="hidden md:flex space-x-4">
                 <a href="{% url 'index' %}" class="hover:bg-gray-700 px-3 py-2 rounded">Accueil</a>
                 {% if request.user.is_authenticated and request.user.is_active_user %}
-                <a href="{% url 'citoyen_create' %}" class="hover:bg-gray-700 px-3 py-2 rounded">citoyen_create</a>
+                <a href="{% url 'citoyen_create' %}" class="hover:bg-gray-700 px-3 py-2 rounded">ajout membre</a>
                 {% endif %}
                 {% if request.user.is_authenticated and request.user.is_active_user %}
-                <a href="{% url 'citoyens_list' %}" class="hover:bg-gray-700 px-3 py-2 rounded">citoyens_list</a>
+                <a href="{% url 'citoyens_list' %}" class="hover:bg-gray-700 px-3 py-2 rounded">liste de cartes</a>
                 {% endif %}
                 {% if request.user.is_authenticated and request.user.is_active_user %}
                 <a href="{% url 'journal_list' %}" class="hover:bg-gray-700 px-3 py-2 rounded">journal_list</a>
@@ -36,7 +36,7 @@
                 <a href="{% url 'liste_createurs' %}" class="hover:bg-gray-700 px-3 py-2 rounded">liste_createurs</a>
                 {% endif %}
                 {% if request.user.is_authenticated and request.user.is_active_user %}
-                <a href="{% url 'citoyens_dashboard_stats' %}" class="hover:bg-gray-700 px-3 py-2 rounded">citoyens_stats</a>
+                <a href="{% url 'citoyens_dashboard_stats' %}" class="hover:bg-gray-700 px-3 py-2 rounded">membres_stats</a>
                 {% endif %}
                 {% comment %} <a href="{% url 'verifier_qr_scanner' %}" class="hover:bg-gray-700 px-3 py-2 rounded">verifier_qr</a> {% endcomment %}
                 
@@ -117,11 +117,11 @@
             {% if request.user.is_authenticated and request.user.is_active_user %}
   <a href="{% url 'citoyen_create' %}" 
      class="block px-4 py-2 text-white hover:bg-gray-700">
-    Créer citoyen
+    Ajout membre
   </a>
   <a href="{% url 'citoyens_list' %}" 
      class="block px-4 py-2 text-white hover:bg-gray-700">
-    Liste citoyens
+    Liste cartes
   </a>
   <a href="{% url 'journal_list' %}" 
      class="block px-4 py-2 text-white hover:bg-gray-700">
