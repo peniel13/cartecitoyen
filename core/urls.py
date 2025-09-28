@@ -31,6 +31,15 @@ urlpatterns = [
     path('user/carte/<int:citoyen_id>/modifier/', views.modifier_carte, name='modifier_carte'),
     path('user/carte/<int:citoyen_id>/supprimer/', views.supprimer_carte, name='supprimer_carte'),
     path('citoyens_dash/', views.citoyens_dashboard_stats, name='citoyens_dashboard_stats'),
-
+    path('', views.news_feed, name='news_feed'),
+    path('user/news/create/', views.create_news, name='news_create'),
+    path('user/news/<int:pk>/', views.news_detail, name='news_detail'),
+    path('user/news/<int:pk>/like/', views.toggle_like, name='news_like'),
+    path('user/news/<int:pk>/share/', views.share_post, name='news_share'),
+    path('user/news/<int:pk>/comment/', views.add_comment, name='news_comment'),
+    path('user/comment/<int:comment_id>/reply/', views.add_reply, name='comment_reply'),
+    path('contributions/', views.contributions_list, name='contributions_list'),
+    path('contributions/ajouter/',  views.contribution_create_view, name='contribute'),
+    path("mes-contributions/", views.mes_contributions_view, name="mes_contributions"),
 
 ]

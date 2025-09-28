@@ -32,12 +32,17 @@
             
             <!-- Bouton Modifier Profil -->
             {% if request.user.is_authenticated and request.user.id == user.id %}
-            <div class="sm:col-span-2 mt-2 flex justify-start">
-                <a href="{% url 'update_profile' %}" 
-                   class="px-6 py-2 bg-blue-500 text-white rounded-full text-sm sm:text-base hover:bg-blue-600 transition duration-300">
-                   Modifier Profil
-                </a>
-            </div>
+            <div class="sm:col-span-2 mt-2 flex justify-start gap-4">
+              <a href="{% url 'update_profile' %}" 
+                 class="px-6 py-2 bg-blue-500 text-white rounded-full text-sm sm:text-base hover:bg-blue-600 transition duration-300">
+                 Modifier Profil
+              </a>
+              <a href="{% url 'mes_contributions' %}" 
+                 class="px-6 py-2 bg-blue-500 text-white rounded-full text-sm sm:text-base hover:bg-blue-600 transition duration-300">
+                 Mes contributions 
+              </a>
+          </div>
+          
             {% endif %}
         </div>
     </div>

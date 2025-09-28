@@ -1115,3 +1115,181 @@ def liste_createurs(request):
         "total_cartes_filtre": total_cartes_filtre,
     }
     return render(request, "core/liste_createurs.html", context)
+
+
+# core/views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.utils import timezone
+
+from .models import News, Comment, ReplyComment
+from .forms import NewsForm, CommentForm, ReplyCommentForm
+
+def news_feed(request):
+    """Liste des posts (feed) — ressemble à Instagram."""
+    posts = News.objects.filter(is_active=True).select_related('author').prefetch_related('likes', 'comments__author', 'comments__replies')
+    comment_form = CommentForm()
+    reply_form = ReplyCommentForm()
+    return render(request, 'core/news_feed.html', {
+        'posts': posts,
+        'comment_form': comment_form,
+        'reply_form': reply_form,
+    })
+
+
+def news_detail(request, pk):
+    post = get_object_or_404(News, pk=pk, is_active=True)
+    comment_form = CommentForm()
+    reply_form = ReplyCommentForm()
+    return render(request, 'core/news_detail.html', {
+        'post': post,
+        'comment_form': comment_form,
+        'reply_form': reply_form,
+    })
+
+
+@login_required
+def create_news(request):
+    if request.method == "POST":
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            news = form.save(commit=False)
+            news.author = request.user
+            news.created_at = timezone.now()
+            news.save()
+            form.save_m2m()
+            return redirect('news_detail', pk=news.pk)
+    else:
+        form = NewsForm()
+    return render(request, 'core/news_create.html', {'form': form})
+
+
+@login_required
+@require_POST
+def toggle_like(request, pk):
+    post = get_object_or_404(News, pk=pk, is_active=True)
+    user = request.user
+    if user in post.likes.all():
+        post.likes.remove(user)
+        liked = False
+    else:
+        post.likes.add(user)
+        liked = True
+    return JsonResponse({'liked': liked, 'total_likes': post.total_likes})
+
+
+@login_required
+@require_POST
+def add_comment(request, pk):
+    post = get_object_or_404(News, pk=pk, is_active=True)
+    if not post.allow_comments:
+        return HttpResponseForbidden("Les commentaires sont désactivés pour ce post.")
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.news = post
+        comment.author = request.user
+        comment.created_at = timezone.now()
+        comment.save()
+        return redirect(request.POST.get('next', reverse('news_detail', kwargs={'pk': pk})))
+    return HttpResponseBadRequest("Formulaire invalide.")
+
+
+@login_required
+@require_POST
+def add_reply(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id, is_active=True)
+    post = comment.news
+    if not post.allow_comments:
+        return HttpResponseForbidden("Les commentaires sont désactivés pour ce post.")
+    form = ReplyCommentForm(request.POST)
+    if form.is_valid():
+        reply = form.save(commit=False)
+        reply.comment = comment
+        reply.author = request.user
+        reply.created_at = timezone.now()
+        reply.save()
+        return redirect(request.POST.get('next', reverse('news_detail', kwargs={'pk': post.pk})))
+    return HttpResponseBadRequest("Formulaire invalide.")
+
+
+@login_required
+@require_POST
+def share_post(request, pk):
+    """Incrémente share_count — endpoint JSON (utilisé par JS quand l'utilisateur partage)."""
+    post = get_object_or_404(News, pk=pk, is_active=True)
+    post.share_count = post.share_count + 1
+    post.save(update_fields=['share_count'])
+    return JsonResponse({'share_count': post.share_count})
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Contribution
+from .forms import ContributionForm
+from django.utils import timezone
+
+@login_required
+def contributions_list(request):
+    """Liste des contributions de tous les utilisateurs"""
+    contributions = Contribution.objects.filter(is_active=True).order_by('-date_contribution')
+    return render(request, 'core/contributions_list.html', {
+        'contributions': contributions
+    })
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .forms import ContributionForm
+
+@login_required
+def contribution_create_view(request):
+    """
+    Vue pour créer une contribution simple (sans projet lié).
+    """
+    if request.method == 'POST':
+        form = ContributionForm(request.POST)
+        if form.is_valid():
+            contribution = form.save(commit=False)
+            contribution.user = request.user
+            contribution.save()
+
+            messages.success(
+                request,
+                "✅ Merci pour votre contribution ! Elle sera validée après vérification."
+            )
+            return redirect("profile", user_id=request.user.id)
+    else:
+        form = ContributionForm()
+
+    return render(request, 'core/contribution_form.html', {
+        'form': form
+    })
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Contribution
+
+@login_required
+def mes_contributions_view(request):
+    """
+    Liste paginée des contributions ACTIVÉES de l'utilisateur connecté.
+    """
+    contributions_list = (
+        Contribution.objects
+        .filter(user=request.user, is_active=True)  # ✅ on filtre uniquement les contributions validées
+        .order_by('-date_contribution')
+    )
+
+    paginator = Paginator(contributions_list, 8)  # tu peux changer le nombre par page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "core/mes_contributions.html", {
+        "page_obj": page_obj
+    })

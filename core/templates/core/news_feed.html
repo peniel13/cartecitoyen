@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Fil d'actualités{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  {% for post in posts %}
+  <article class="bg-white border rounded shadow-sm">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 p-3">
+      <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+        {% if post.author.profile_pic %}
+          <img src="{{ post.author.profile_pic.url }}" alt="" class="object-cover w-full h-full">
+        {% else %}
+          <span class="text-gray-500">{{ post.author.username|slice:":1" }}</span>
+        {% endif %}
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-sm">{{ post.author.username }}</div>
+        <div class="text-xs text-gray-500">{{ post.created_at|date:"d M Y H:i" }}</div>
+      </div>
+    </div>
+
+    <!-- Media -->
+    {% if post.media_file %}
+      {% if post.media_type == "photo" %}
+        <img src="{{ post.media_file.url }}" alt="{{ post.title }}" class="w-full object-cover max-h-[600px]">
+      {% else %}
+        <video controls class="w-full max-h-[600px]">
+          <source src="{{ post.media_file.url }}">
+          Votre navigateur ne supporte pas la vidéo.
+        </video>
+      {% endif %}
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="p-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button type="button" class="like-btn flex items-center gap-2" data-url="{% url 'news_like' post.id %}">
+            <svg class="w-6 h-6 like-icon {% if user.is_authenticated and user in post.likes.all %}text-red-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364 4.318 12.682a4.5 4.5 0 010-6.364z"/>
+            </svg>
+            <span class="like-count text-sm">{{ post.total_likes }}</span>
+          </button>
+
+          <button type="button" class="comment-toggle text-sm flex items-center gap-2" data-target="#comments-{{ post.id }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 1.657-4.03 3-9 3s-9-1.343-9-3 4.03-3 9-3 9 1.343 9 3z"/>
+            </svg>
+            <span class="text-sm">{{ post.total_comments }}</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button type="button" class="share-btn text-sm" data-url="{% url 'news_share' post.id %}">Partager</button>
+        </div>
+      </div>
+
+      <!-- Title & content -->
+      <div class="mt-3">
+        <div class="font-semibold">{{ post.title }}</div>
+        {% if post.content %}
+          <p class="text-sm text-gray-700 mt-1">{{ post.content }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Comments area -->
+      <div id="comments-{{ post.id }}" class="mt-4 hidden comment-block">
+        <div class="space-y-3">
+          {% for comment in post.comments.all %}
+          {% if comment.is_active %}
+          <div class="bg-gray-50 p-3 rounded">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                {% if comment.author.profile_pic %}
+                  <img src="{{ comment.author.profile_pic.url }}" alt="" class="object-cover w-full h-full">
+                {% endif %}
+              </div>
+              <div class="flex-1">
+                <div class="text-sm"><span class="font-semibold">{{ comment.author.username }}</span> {{ comment.content }}</div>
+                <div class="text-xs text-gray-400 mt-1">{{ comment.created_at|date:"d M Y H:i" }}</div>
+
+                {% if comment.replies.exists %}
+                <button type="button" class="mt-2 text-xs text-blue-600 reply-toggle" data-target="#replies-{{ comment.id }}">Afficher les réponses ({{ comment.replies.count }})</button>
+                <div id="replies-{{ comment.id }}" class="mt-2 hidden ml-6 space-y-2">
+                  {% for reply in comment.replies.all %}
+                  {% if reply.is_active %}
+                  <div class="text-sm bg-white p-2 rounded border">
+                    <span class="font-semibold">{{ reply.author.username }}</span> - {{ reply.content }}
+                    <div class="text-xs text-gray-400">{{ reply.created_at|date:"d M Y H:i" }}</div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <div class="mt-2">
+                  <button type="button" class="text-xs text-gray-600 reply-form-toggle" data-target="#reply-form-{{ comment.id }}">Répondre</button>
+                  <form id="reply-form-{{ comment.id }}" action="{% url 'comment_reply' comment.id %}" method="post" class="mt-2 hidden">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'news_detail' post.id %}">
+                    {{ reply_form.content|add_class:"w-full p-2 border rounded"|attr:"placeholder:Votre réponse..." }}
+                    <div class="flex gap-2 mt-2">
+                      <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded text-xs">Envoyer</button>
+                    </div>
+                  </form>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% empty %}
+          <div class="text-sm text-gray-500">Aucun commentaire</div>
+          {% endfor %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <form action="{% url 'news_comment' post.id %}" method="post" class="mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'news_detail' post.id %}">
+          {{ comment_form.content|add_class:"w-full p-3 border rounded"|attr:"placeholder:Ajoutez un commentaire..." }}
+          <div class="flex justify-end mt-2">
+            <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded">Commenter</button>
+          </div>
+        </form>
+        {% else %}
+        <div class="mt-4 text-sm text-gray-500">Connectez-vous pour commenter.</div>
+        {% endif %}
+      </div>
+
+  </article>
+  {% empty %}
+  <div class="text-center text-gray-500 text-sm py-8">Aucun post pour le moment. 🚀</div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // LIKE
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      fetch(this.dataset.url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'},
+      })
+      .then(r => r.json())
+      .then(data => {
+        const countEl = this.querySelector('.like-count');
+        const icon = this.querySelector('.like-icon');
+        countEl.textContent = data.total_likes;
+        icon.classList.toggle('text-red-500', data.liked);
+      })
+      .catch(console.error);
+    });
+  });
+
+  // SHARE
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      fetch(this.dataset.url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'},
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.textContent = 'Partagé (' + data.share_count + ')';
+      })
+      .catch(console.error);
+    });
+  });
+
+  // COMMENT toggle
+  document.querySelectorAll('.comment-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector(this.dataset.target)?.classList.toggle('hidden');
+    });
+  });
+
+  // REPLY toggle
+  document.querySelectorAll('.reply-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector(this.dataset.target)?.classList.toggle('hidden');
+    });
+  });
+
+  // REPLY FORM toggle
+  document.querySelectorAll('.reply-form-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector(this.dataset.target)?.classList.toggle('hidden');
+    });
+  });
+
+});
+</script>
+{% endblock %}

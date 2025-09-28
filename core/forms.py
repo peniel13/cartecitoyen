@@ -154,12 +154,7 @@ class CitoyenForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "form-control"})
     )
 
-    # date_expiration = forms.DateField(
-    #     widget=forms.DateInput(attrs={
-    #         "class": "form-control",
-    #         "type": "date"
-    #     })
-    # )
+   
     date_expiration_fk = forms.ModelChoiceField(
         queryset=DateExpirationfk.objects.all(),
         required=False,
@@ -350,3 +345,58 @@ class TemoinForm(forms.ModelForm):
 #             "contact": forms.TextInput(attrs={"class": "form-control"}),
 #             "signature": forms.ClearableFileInput(attrs={"class": "form-control"}),
 #         }
+
+
+from django import forms
+from .models import News, Comment, ReplyComment
+
+class NewsForm(forms.ModelForm):
+    class Meta:
+        model = News
+        fields = ['title', 'content', 'media_type', 'media_file', 'allow_comments', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Titre de la news'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Contenu...'}),
+            'media_type': forms.Select(attrs={'class': 'form-select'}),
+            'media_file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'allow_comments': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Votre commentaire...'}),
+        }
+
+
+class ReplyCommentForm(forms.ModelForm):
+    class Meta:
+        model = ReplyComment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Votre réponse...'}),
+        }
+
+
+from .models import Contribution
+
+from django import forms
+from .models import Contribution
+
+class ContributionForm(forms.ModelForm):
+    class Meta:
+        model = Contribution
+        fields = [
+            'nom_contributeur', 'montant', 'devise', 'id_transaction', 'phone_number'
+        ]
+        widgets = {
+            'devise': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+            'id_transaction': forms.TextInput(attrs={'placeholder': 'ID de transaction'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Numéro de téléphone'}),
+        }
+
+    

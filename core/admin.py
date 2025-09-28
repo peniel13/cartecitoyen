@@ -166,3 +166,80 @@ class JournalAdmin(admin.ModelAdmin):
     list_display = ("action", "utilisateur", "citoyen", "date_action")
     list_filter = ("action", "date_action")
     search_fields = ("citoyen__nom", "citoyen__prenom", "utilisateur__email")
+
+
+
+
+from django.contrib import admin
+from .models import News, Comment, ReplyComment,Contribution
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'media_type', 'created_at', 'allow_comments', 'is_active', 'total_likes', 'total_comments')
+    list_filter = ('media_type', 'allow_comments', 'is_active', 'created_at')
+    search_fields = ('title', 'content', 'author__email')
+    date_hierarchy = 'created_at'
+    readonly_fields = ('total_likes', 'total_comments', 'share_count')
+    list_editable = ('allow_comments', 'is_active')
+
+    fieldsets = (
+        ('Informations générales', {
+            'fields': ('author', 'title', 'content', 'media_type', 'media_file')
+        }),
+        ('Interactions & Options', {
+            'fields': ('allow_comments', 'is_active', 'likes', 'share_count', 'total_likes', 'total_comments')
+        }),
+    )
+
+    filter_horizontal = ('likes',)  # pour choisir les likes directement dans l’admin
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('news', 'author', 'short_content', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('content', 'author__email', 'news__title')
+    list_editable = ('is_active',)
+
+    def short_content(self, obj):
+        return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
+    short_content.short_description = "Contenu"
+
+
+@admin.register(ReplyComment)
+class ReplyCommentAdmin(admin.ModelAdmin):
+    list_display = ('comment', 'author', 'short_content', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('content', 'author__email', 'comment__content')
+    list_editable = ('is_active',)
+
+    def short_content(self, obj):
+        return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
+    short_content.short_description = "Contenu"
+
+
+
+from django.contrib import admin
+from .models import Contribution
+@admin.register(Contribution)
+class ContributionAdmin(admin.ModelAdmin):
+    list_display = (
+        'nom_contributeur', 'montant', 'devise', 'phone_number', 'id_transaction',
+        'date_contribution', 'user', 'is_active'
+    )
+    list_filter = ('is_active', 'date_contribution', 'devise')
+    search_fields = ('nom_contributeur', 'id_transaction', 'phone_number')
+    readonly_fields = ('date_contribution',)
+
+    # ✅ Actions disponibles dans le menu déroulant "Action"
+    actions = ["activer_contributions", "desactiver_contributions"]
+
+    @admin.action(description="✅ Activer les contributions sélectionnées")
+    def activer_contributions(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} contribution(s) ont été activées avec succès ✅")
+
+    @admin.action(description="🚫 Désactiver les contributions sélectionnées")
+    def desactiver_contributions(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f"{updated} contribution(s) ont été désactivées 🚫")

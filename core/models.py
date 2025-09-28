@@ -290,3 +290,104 @@ class JournalAction(models.Model):
     def __str__(self):
         return f"{self.action} par {self.utilisateur} sur {self.citoyen}"
 
+
+
+
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
+User = settings.AUTH_USER_MODEL
+
+class News(models.Model):
+    MEDIA_TYPE_CHOICES = [
+        ('photo', 'Photo'),
+        ('video', 'Vidéo'),
+    ]
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="news")
+    title = models.CharField(max_length=255)
+    content = models.TextField(blank=True, null=True)
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, blank=True, null=True)
+    media_file = models.FileField(upload_to='news_media/', blank=True, null=True)  # photo ou vidéo
+    created_at = models.DateTimeField(default=timezone.now)
+
+    # 🔥 interactions
+    likes = models.ManyToManyField(User, related_name='liked_news', blank=True)
+    share_count = models.PositiveIntegerField(default=0)
+
+    # 🔧 options
+    allow_comments = models.BooleanField(default=True)  # admin peut désactiver les commentaires
+    is_active = models.BooleanField(default=True)  # pour archiver/supprimer sans supprimer physiquement
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def total_likes(self):
+        return self.likes.count()
+
+    @property
+    def total_comments(self):
+        return self.comments.count()
+
+
+class Comment(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)  # possibilité de masquer un commentaire
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Commentaire de {self.author} sur {self.news.title}"
+
+
+class ReplyComment(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='replies')
+    content = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Réponse de {self.author} à un commentaire sur {self.comment.news.title}"
+
+
+
+from django.conf import settings
+from django.conf import settings
+from django.db import models
+
+class Contribution(models.Model):
+    DEVISE_CHOICES = [
+        ('USD', 'Dollar américain (USD)'),
+        ('FC', 'Franc congolais (FC)'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='contributions'
+    )
+    nom_contributeur = models.CharField(max_length=100)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    devise = models.CharField(max_length=3, choices=DEVISE_CHOICES, default='FC')  # ✅ Nouveau champ
+    id_transaction = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    date_contribution = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.nom_contributeur} - {self.montant} {self.devise}"

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 max-w-2xl">
+  <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
+    Contribuer pour votre parti UDPS 
+  </h1>
+
+  <!-- 💡 Bloc instructions de paiement -->
+  <div class="payeenligne-container bg-white p-6 rounded-lg shadow-lg mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Instructions de contribution</h2>
+    <ul class="list-decimal pl-6 mb-6 text-gray-700">
+      <li>Sélectionnez le numéro correspondant à votre opérateur de réseau ci-dessous.</li>
+      <li>Effectuez le transfert du montant de contribution <strong>{{ total_amount|floatformat:2 }}</strong></li>
+      <li>Après avoir effectué le paiement, entrez les informations de votre transaction dans le formulaire ci-dessous.</li>
+      <li>Cliquez sur "Valider la contribution" pour confirmer votre transaction.</li>
+      <li>Vérifiez la situation de votre contribution pour confirmer qu’elle a bien été enregistrée.</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold mt-6">Numéros pour le paiement :</h3>
+    <ul class="mt-4 space-y-2">
+      <li class="flex items-center">
+        <img src="{% static 'img/airtel.png' %}" alt="Opérateur A" class="w-12 h-12 mr-4">
+        Mobile Money - Opérateur A : +243972489318
+      </li>
+      <li class="flex items-center">
+        <img src="{% static 'img/M-Pesa.jpg' %}" alt="Opérateur B" class="w-12 h-12 mr-4">
+        Mobile Money - Opérateur B : +987654321
+      </li>
+      <li class="flex items-center">
+        <img src="{% static 'img/orange.png' %}" alt="Opérateur C" class="w-12 h-12 mr-4">
+        Mobile Money - Opérateur C : +456789123
+      </li>
+    </ul>
+
+    <p class="text-gray-600 mt-4 text-sm">
+      Assurez-vous de conserver une preuve de votre transaction. Si vous avez des questions, n’hésitez pas à contacter notre service client.
+    </p>
+  </div>
+
+ <!-- ✅ Formulaire de contribution -->
+<form method="POST" class="space-y-6 bg-white p-6 rounded-xl shadow-md">
+  {% csrf_token %}
+
+  <!-- Nom du contributeur -->
+  <div>
+    <label for="{{ form.nom_contributeur.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+      {{ form.nom_contributeur.label }}
+    </label>
+    {{ form.nom_contributeur|add_class:"w-full border border-gray-300 rounded px-4 py-2" }}
+    {% if form.nom_contributeur.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.nom_contributeur.errors }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Montant -->
+  <div>
+    <label for="{{ form.montant.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+      {{ form.montant.label }}
+    </label>
+    {{ form.montant|add_class:"w-full border border-gray-300 rounded px-4 py-2" }}
+    {% if form.montant.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.montant.errors }}</p>
+    {% endif %}
+  </div>
+
+  <!-- ✅ Devise -->
+  <div>
+    <label for="{{ form.devise.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+      {{ form.devise.label }}
+    </label>
+    {{ form.devise|add_class:"w-full border border-gray-300 rounded px-4 py-2 bg-white" }}
+    {% if form.devise.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.devise.errors }}</p>
+    {% endif %}
+  </div>
+
+  <!-- ID de transaction -->
+  <div>
+    <label for="{{ form.id_transaction.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+      {{ form.id_transaction.label }}
+    </label>
+    {{ form.id_transaction|add_class:"w-full border border-gray-300 rounded px-4 py-2" }}
+    {% if form.id_transaction.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.id_transaction.errors }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Numéro de téléphone -->
+  <div>
+    <label for="{{ form.phone_number.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+      {{ form.phone_number.label }}
+    </label>
+    {{ form.phone_number|add_class:"w-full border border-gray-300 rounded px-4 py-2" }}
+    {% if form.phone_number.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.phone_number.errors }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Bouton de soumission -->
+  <div class="text-center">
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-semibold">
+      💸 Valider la contribution
+    </button>
+  </div>
+</form>
+
+</div>
+{% endblock %}

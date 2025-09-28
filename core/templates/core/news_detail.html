@@ -1,0 +1,172 @@
+<!-- templates/core/news_detail.html -->
+{% extends "core/base.html" %}
+{% block content %}
+  <div class="bg-white border rounded shadow-sm p-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full overflow-hidden">
+        {% if post.author.profile_pic %}
+          <img src="{{ post.author.profile_pic.url }}" alt="" class="object-cover w-full h-full">
+        {% endif %}
+      </div>
+      <div>
+        <div class="font-semibold">{{ post.author.username }}</div>
+        <div class="text-xs text-gray-500">{{ post.created_at|date:"d M Y H:i" }}</div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      {% if post.media_file %}
+        {% if post.media_type == "photo" %}
+          <img src="{{ post.media_file.url }}" alt="{{ post.title }}" class="w-full object-cover max-h-[700px]">
+        {% else %}
+          <video controls class="w-full max-h-[700px]"><source src="{{ post.media_file.url }}"></video>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="mt-3">
+      <h2 class="font-semibold text-lg">{{ post.title }}</h2>
+      <p class="text-gray-700 mt-2">{{ post.content }}</p>
+    </div>
+
+    <div class="mt-3 flex items-center gap-4">
+      <button id="like-btn" class="flex items-center gap-2" data-post-id="{{ post.id }}">
+        <svg id="like-icon" class="w-6 h-6 {% if user.is_authenticated and user in post.likes.all %}text-red-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364 4.318 12.682a4.5 4.5 0 010-6.364z"/></svg>
+        <span id="like-count">{{ post.total_likes }}</span>
+      </button>
+
+      <button id="share-btn" data-post-id="{{ post.id }}">Partager ({{ post.share_count }})</button>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- comments area -->
+    <div>
+      <h3 class="font-semibold">Commentaires ({{ post.total_comments }})</h3>
+
+      <div class="mt-3 space-y-3">
+        {% for comment in post.comments.all %}
+          {% if comment.is_active %}
+          <div class="p-3 bg-gray-50 rounded">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                {% if comment.author.profile_pic %}
+                  <img src="{{ comment.author.profile_pic.url }}" alt="" class="object-cover w-full h-full">
+                {% endif %}
+              </div>
+              <div class="flex-1">
+                <div><span class="font-semibold">{{ comment.author.username }}</span> - <span class="text-gray-700">{{ comment.content }}</span></div>
+                <div class="text-xs text-gray-400">{{ comment.created_at|date:"d M Y H:i" }}</div>
+
+                <!-- replies -->
+                {% if comment.replies.exists %}
+                  <div class="mt-2 ml-4 space-y-2">
+                    {% for reply in comment.replies.all %}
+                      {% if reply.is_active %}
+                        <div class="text-sm bg-white p-2 rounded border">
+                          <span class="font-semibold">{{ reply.author.username }}</span> - {{ reply.content }}
+                          <div class="text-xs text-gray-400">{{ reply.created_at|date:"d M Y H:i" }}</div>
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                <!-- reply form -->
+                {% if user.is_authenticated %}
+                  <div class="mt-2 ml-4">
+                    <form action="{% url 'core:comment_reply' comment.id %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'core:news_detail' post.id %}">
+                      {{ reply_form.content|as_widget(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Répondre...' }) }}
+                      <div class="flex justify-end mt-2">
+                        <button class="px-3 py-1 bg-blue-500 text-white rounded text-xs">Répondre</button>
+                      </div>
+                    </form>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% empty %}
+          <div class="text-sm text-gray-500">Aucun commentaire pour le moment.</div>
+        {% endfor %}
+      </div>
+
+      <!-- add comment -->
+      {% if user.is_authenticated %}
+        <div class="mt-4">
+          <form action="{% url 'core:news_comment' post.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'core:news_detail' post.id %}">
+            {{ comment_form.content|as_widget(attrs={'class': 'w-full p-3 border rounded', 'placeholder': 'Ajoutez un commentaire...' }) }}
+            <div class="flex justify-end mt-2">
+              <button class="px-3 py-1 bg-blue-500 text-white rounded">Commenter</button>
+            </div>
+          </form>
+        </div>
+      {% else %}
+        <div class="mt-4 text-sm text-gray-500">Connectez-vous pour commenter.</div>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // csrf helper
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  // like
+  const likeBtn = document.getElementById('like-btn');
+  if (likeBtn) {
+    likeBtn.addEventListener('click', function() {
+      const postId = this.dataset.postId;
+      fetch(`{% url 'core:news_like' 0 %}`.replace('/0/', `/${postId}/`), {
+        method: 'POST', headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'}
+      }).then(r=>r.json()).then(data=>{
+        document.getElementById('like-count').textContent = data.total_likes;
+        document.getElementById('like-icon').classList.toggle('text-red-500', data.liked);
+      });
+    });
+  }
+
+  // share
+  const shareBtn = document.getElementById('share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function(){
+      const postId = this.dataset.postId;
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({title: document.title, text: 'Regarde cette info', url}).then(()=>{
+          fetch(`{% url 'core:news_share' 0 %}`.replace('/0/', `/${postId}/`), {method:'POST', headers:{'X-CSRFToken': csrftoken}}).then(r=>r.json()).then(data=>{
+            shareBtn.textContent = 'Partager ('+data.share_count+')';
+          });
+        });
+      } else {
+        navigator.clipboard?.writeText(url).then(()=>{
+          fetch(`{% url 'core:news_share' 0 %}`.replace('/0/', `/${postId}/`), {method:'POST', headers:{'X-CSRFToken': csrftoken}}).then(r=>r.json()).then(data=>{
+            shareBtn.textContent = 'Lien copié ('+data.share_count+')';
+          });
+        }).catch(()=>window.open(url,'_blank'));
+      }
+    });
+  }
+</script>
+{% endblock %}
