@@ -172,12 +172,16 @@
      
       <!-- Infos verticales en bas de la div info avec espacement légèrement augmenté -->
       <div class="bottom-info" style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
-        <div class="info-item" style="line-height: 1.2;">
+        {% comment %} <div class="info-item" style="line-height: 1.2;">
             <span class="label" style="display:block; font-weight:bold; font-size:13px;">Date de naissance:</span>
             <span class="value" style="display:block; font-size:13px; margin-top:1px;">{{ citoyen.date_naissance|date:"d M Y" }}</span>
-        </div>
+        </div> {% endcomment %}
         <div class="info-item" style="line-height: 1.2;">
-            <span class="label" style="display:block; font-weight:bold; font-size:13px;">Lieu de naissance:</span>
+          <span class="label" style="display:block; font-weight:bold; font-size:13px;">Date d'ajout:</span>
+          <span class="value" style="display:block; font-size:13px; margin-top:1px;">{{ citoyen.date_creation }}</span>
+      </div>
+        <div class="info-item" style="line-height: 1.2;">
+            <span class="label" style="display:block; font-weight:bold; font-size:13px;">Lieu d'activité:</span>
             <span class="value" style="display:block; font-size:13px; margin-top:1px;">{{ citoyen.lieu_naissance }}</span>
         </div>
         <div class="info-item" style="line-height: 1.2;">
@@ -200,9 +204,12 @@
       <p><span class="label">Cellule:</span> {{ citoyen.cellule }}</p>
       <p><span class="label">Qualité:</span> {{ citoyen.get_statut_adhesion_display }}</p>
       <p>Signature du Président</p>
-      {% if citoyen.signature %}
+      {% comment %} {% if citoyen.signature %}
         <img src="{{ MEDIA_URL }}{{ citoyen.signature }}" alt="signature">
-      {% endif %}
+      {% endif %} {% endcomment %}
+      {% if signature %}
+  <img src="{{ signature }}" alt="Signature du titulaire">
+{% endif %}
     </div>
 
     {% if citoyen.qr_code %}

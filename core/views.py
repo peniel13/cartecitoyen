@@ -7,17 +7,33 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .forms import CitoyenForm, DocumentJustificatifForm, TemoinForm,UpdateProfileForm,RegisterForm
 
+# def signup(request):
+#     form = RegisterForm()
+#     if request.method == 'POST':
+#         form = RegisterForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Account created successfully")
+#             return redirect("signin")
+        
+#     context = {"form":form}
+#     return render(request, "core/signup.html", context)
+from django.contrib import messages
+
 def signup(request):
-    form = RegisterForm()
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Account created successfully")
+            messages.success(request, "✅ Compte créé avec succès ! Vous pouvez vous connecter.")
             return redirect("signin")
-        
-    context = {"form":form}
-    return render(request, "core/signup.html", context)
+        else:
+            # Ajouter un message global si le formulaire n'est pas valide
+            messages.error(request, "❌ Des erreurs sont survenues. Veuillez corriger les champs ci-dessous.")
+    else:
+        form = RegisterForm()
+
+    return render(request, "core/signup.html", {"form": form})
 
 def signin (request):
     if request.method == 'POST':
@@ -693,6 +709,7 @@ def telecharger_carte_image(request, citoyen_id):
         "logo_udps": static_base + static("img/logo_udps.jpg"),
         "udps_logo": static_base + static("img/udps_logo.jpg"),
         "coter": static_base + static("img/coter.jpg"),
+        "signature": static_base + static("img/signature.jpg"),
         
         "MEDIA_URL": request.build_absolute_uri(settings.MEDIA_URL),
     }
